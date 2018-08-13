@@ -1,0 +1,108 @@
+{
+	"mapwidth":"2000",
+	"mapheight":"1139",
+	"bottomLat": "0",
+	"leftLng": "0",
+	"topLat": "100",
+	"rightLng": "100",
+	"categories":[],
+	"levels":[
+		{
+			"id":"anatomy",
+			"title":"Anatomy of The Heritage Pool",
+			"map":"https://www.swimhere.com/wp-content/themes/heritagepools/assets/media/maps/heritagepool.poolstructure.jpg",
+			"locations":[
+				{
+					"id": "anatomy-1",
+					"title": "Stabilization Fabric to Keep the Stone Bed Clean from Soils",
+					"pin": "orange pin-xl pin-label",
+					"label": "1",
+					"x": "0.5447",
+					"y": "0.7004",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/1.png"
+				},
+				{
+					"id": "anatomy-2",
+					"title": "Gravel Bed To Help Stabalize Ground",
+					"pin": "orange pin-xl pin-label",
+					"label": "2",
+					"x": "0.5897",
+					"y": "0.6300",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/2.png"
+				},
+				{
+					"id": "anatomy-3",
+					"title": "Poured Structural Concrete Floor",
+					"pin": "orange pin-xl pin-label",
+					"label": "3",
+					"x": "0.6639",
+					"y": "0.5607",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/3.png"
+				},
+				{
+					"id": "anatomy-4",
+					"title": "Commercial Grade Pool Membrane",
+					"pin": "orange pin-xl pin-label",
+					"label": "4",
+					"x": "0.8538",
+					"y": "0.4814",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/4.png"
+				},
+				{
+					"id": "anatomy-5",
+					"title": "Structural Design Resin, Non-corrosive, Non-conductive Pool Panel",
+					"pin": "orange pin-xl pin-label",
+					"label": "5",
+					"x": "0.2295",
+					"y": "0.5192",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/5.png"
+				},
+				{
+					"id": "anatomy-6",
+					"title": "Exclusive I-Beam Brace: Transfers over 10,000 pound of the Live Load from your pool walls & Decking to the footing, Eliminating lateral pressure on walls (Bowing)",
+					"pin": "orange pin-xl pin-label",
+					"label": "6",
+					"x": "0.1427",
+					"y": "0.5053",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/6.png"
+				},
+				{
+					"id": "anatomy-7",
+					"title": "Concrete Bonding System",
+					"pin": "orange pin-xl pin-label",
+					"label": "7",
+					"x": "0.1843",
+					"y": "0.6288",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/7.png"
+				},
+				{
+					"id": "anatomy-8",
+					"title": "Rigid Schedule 40 Piping Embedded in the bonding beam to protect from boring  insects and termites",
+					"pin": "orange pin-xl pin-label",
+					"label": "8",
+					"x": "0.2316",
+					"y": "0.7320",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/8.png"
+				},
+				{
+					"id": "anatomy-9",
+					"title": "De-watering pit to control ground water",
+					"pin": "orange pin-xl pin-label",
+					"label": "9",
+					"x": "0.3814",
+					"y": "0.8227",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/9.png"
+				},
+				{
+					"id": "anatomy-10",
+					"title": "Concrete decking with rebar grid (totally supported by the I-Beam brace system) To lock in the top of the wall (other decking materials available)",
+					"pin": "orange pin-xl pin-label",
+					"label": "10",
+					"x": "0.1743",
+					"y": "0.3945",
+					"thumbnail": "/wp-content/themes/heritagepools/assets/media/10.png"
+				}
+			]
+		}
+	]
+}

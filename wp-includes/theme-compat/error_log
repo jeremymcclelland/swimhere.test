@@ -1,0 +1,4 @@
+[11-Feb-2018 21:36:23 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function post_class() in /home1/charlhz5/public_html/heritage/wp-includes/theme-compat/embed-content.php:13
+Stack trace:
+#0 {main}
+  thrown in /home1/charlhz5/public_html/heritage/wp-includes/theme-compat/embed-content.php on line 13
