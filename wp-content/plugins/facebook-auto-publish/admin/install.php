@@ -71,9 +71,16 @@ function fbap_install_free()
 	add_option('xyz_fbap_premium_version_ads', '1');
 	add_option('xyz_fbap_default_selection_edit', '0');
 // 	add_option('xyz_fbap_utf_decode_enable', '0');
+	add_option('xyz_fbap_app_sel_mode','0');
 	add_option('xyz_fbap_dnt_shw_notice','0');
 	if(get_option('xyz_fbap_credit_dismiss') == "")
-		add_option("xyz_fbap_credit_dismiss",0);
+		add_option("xyz_fbap_credit_dismiss",'0');
+	add_option('xyz_fbap_page_names','');
+	add_option('xyz_fbap_secret_key','');
+	add_option('xyz_fbap_smapsoln_userid','0');
+	//add_option('xyz_fbap_api_calls_used','0');
+	add_option('xyz_fbap_xyzscripts_user_id','');
+	add_option('xyz_fbap_xyzscripts_hash_val','');
 }
 
 

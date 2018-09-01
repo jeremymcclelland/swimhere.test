@@ -3,8 +3,8 @@ Contributors: f1logic
 Donate link: https://xyzscripts.com/donate/
 Tags:  facebook, facebook auto publish,wp facebook auto publish,publish post to facebook, add link to facebook, facebook publishing, post to facebook, post to fb, social media auto publish, social media publishing, social network auto publish, social media, social network
 Requires at least: 3.0																				
-Tested up to: 4.9.5
-Stable tag: 1.4.9
+Tested up to: 4.9.8
+Stable tag: 2.0
 License: GPLv2 or later
 
 Publish posts automatically to Facebook page or profile.
@@ -125,6 +125,11 @@ SSL peer verification may not be functioning in your server. Please turn off SSL
 2. Publishing options while creating a post.
 
 == Changelog ==
+
+= WP Facebook Auto Publish 2.0 =
+* Removed unwanted facebook permissions
+* Added Facebook authorization and publishing using SMAPSolutions.com
+* Increased logs count from 5 to 10
 
 = WP Facebook Auto Publish 1.4.9 =
 * Removed Facebook deprecated permission 'publish_actions'

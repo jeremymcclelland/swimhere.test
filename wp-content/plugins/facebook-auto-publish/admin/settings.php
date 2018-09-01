@@ -1,7 +1,6 @@
 <?php
 if( !defined('ABSPATH') ){ exit();}
 global $current_user;
-$auth_varble=0;
 wp_get_current_user();
 $imgpath= plugins_url()."/facebook-auto-publish/images/";
 $heimg=$imgpath."support.png";
@@ -9,7 +8,9 @@ $ms0="";
 $ms1="";
 $ms2="";
 $ms3="";
+$appid='';$appsecret='';
 $redirecturl=admin_url('admin.php?page=facebook-auto-publish-settings&auth=1');
+$domain_name=$xyzscripts_hash_val=$xyz_fbap_smapsoln_userid=$xyzscripts_user_id=$xyz_smap_licence_key='';
 require( dirname( __FILE__ ) . '/authorization.php' );
 if(!$_POST && isset($_GET['fbap_notice'])&& $_GET['fbap_notice'] == 'hide')
 {
@@ -64,25 +65,35 @@ if(isset($_POST['fb']))
 
 
 	update_option('xyz_fbap_pages_ids',$fbap_pages_list_ids);
+// 	if(isset($_POST['xyz_fbap_secret_key'])&& isset($_POST['xyz_fbap_page_names'])){
+// 	update_option('xyz_fbap_page_names',$_POST['xyz_fbap_page_names']);
+// 	update_option('xyz_fbap_secret_key',$_POST['xyz_fbap_secret_key']);
+// 	update_option('xyz_fbap_af',0);
+// 	}
 	$applidold=get_option('xyz_fbap_application_id');
 	$applsecretold=get_option('xyz_fbap_application_secret');
+	//$app_name_old=get_option('xyz_fbap_application_name');
 	$posting_method=intval($_POST['xyz_fbap_po_method']);
 	$posting_permission=intval($_POST['xyz_fbap_post_permission']);
 	$app_name=sanitize_text_field($_POST['xyz_fbap_application_name']);
+	$xyz_fbap_app_sel_mode=intval($_POST['xyz_fbap_app_sel_mode']);
+	$xyz_fbap_app_sel_mode_old=get_option('xyz_fbap_app_sel_mode');
+	if ($xyz_fbap_app_sel_mode==0){
 	$appid=sanitize_text_field($_POST['xyz_fbap_application_id']);
 	$appsecret=sanitize_text_field($_POST['xyz_fbap_application_secret']);
+	}
 	$messagetopost=$_POST['xyz_fbap_message'];
 	if($app_name=="" && $posting_permission==1)
 	{
 		$ms0="Please fill facebook application name.";
 		$erf=1;
 	}
-	else if($appid=="" && $posting_permission==1)
+	else if($appid=="" && $posting_permission==1 && $xyz_fbap_app_sel_mode==0)
 	{
 		$ms1="Please fill facebook application id.";
 		$erf=1;
 	}
-	elseif($appsecret=="" && $posting_permission==1)
+	elseif($appsecret=="" && $posting_permission==1 && $xyz_fbap_app_sel_mode==0)
 	{
 		$ms2="Please fill facebook application secret.";
 		$erf=1;
@@ -90,16 +101,25 @@ if(isset($_POST['fb']))
 	else
 	{
 		$erf=0;
-		if($appid!=$applidold || $appsecret!=$applsecretold)
+		if(($appid!=$applidold || $appsecret!=$applsecretold)&& $xyz_fbap_app_sel_mode==0)
 		{
 			update_option('xyz_fbap_af',1);
 			update_option('xyz_fbap_fb_token','');
 		}
+		else if ($xyz_fbap_app_sel_mode_old != $xyz_fbap_app_sel_mode)
+		{
+			update_option('xyz_fbap_af',1);
+			update_option('xyz_fbap_fb_token','');
+			update_option('xyz_fbap_secret_key','');
+			update_option('xyz_fbap_page_names','');
+		}
 		update_option('xyz_fbap_application_name',$app_name);
+		if ($xyz_fbap_app_sel_mode==0){
 		update_option('xyz_fbap_application_id',$appid);
-		update_option('xyz_fbap_post_permission',$posting_permission);
 		update_option('xyz_fbap_application_secret',$appsecret);
-		//update_option('xyz_fbap_fb_id',$fbid);
+		}
+		update_option('xyz_fbap_post_permission',$posting_permission);
+		update_option('xyz_fbap_app_sel_mode',$xyz_fbap_app_sel_mode);
 		update_option('xyz_fbap_po_method',$posting_method);
 		update_option('xyz_fbap_message',$messagetopost);
 	}
@@ -126,6 +146,24 @@ if(isset($_GET['msg']) && $_GET['msg']==3)
 	?>
 <div class="system_notice_area_style0" id="system_notice_area">
 Unable to authorize the facebook application. Please check your curl/fopen and firewall settings. &nbsp;&nbsp;&nbsp;<span
+		id="system_notice_area_dismiss">Dismiss</span>
+</div>	
+<?php 
+}
+if(isset($_GET['msg']) && $_GET['msg']==4)
+{
+	?>
+<div class="system_notice_area_style1" id="system_notice_area">
+Successfully connected to xyzscripts member area. &nbsp;&nbsp;&nbsp;<span
+		id="system_notice_area_dismiss">Dismiss</span>
+</div>	
+<?php 
+}
+if(isset($_GET['msg']) && $_GET['msg']==5)
+{
+	?>
+<div class="system_notice_area_style1" id="system_notice_area">
+Selected pages saved successfully. &nbsp;&nbsp;&nbsp;<span
 		id="system_notice_area_dismiss">Dismiss</span>
 </div>	
 <?php 
@@ -167,10 +205,12 @@ function dethide_fbap(id)
 	//$fbid=esc_html(get_option('xyz_fbap_fb_id'));
 	$posting_method=get_option('xyz_fbap_po_method');
 	$posting_message=esc_textarea(get_option('xyz_fbap_message'));
+ 	if(get_option('xyz_fbap_app_sel_mode')==0)
+ 	{
 	if($af==1 && $appid!="" && $appsecret!="")
 	{
 		?>
-	<span style="color: red;">Application needs authorisation</span> <br>
+		<span style="color: red;" id="auth_message" >Application needs authorisation</span> <br>
 	<form method="post">
      <?php wp_nonce_field( 'xyz_smap_fb_auth_nonce' );?>
 		<input type="submit" class="submit_fbap_new" name="fb_auth"
@@ -188,6 +228,40 @@ function dethide_fbap(id)
 	
 	</form>
 	<?php }
+ 	}
+ 	elseif (get_option('xyz_fbap_app_sel_mode')==1){//add trim
+ 		$domain_name=trim(get_option('siteurl'));
+ 		$xyz_fbap_smapsoln_userid=intval(trim(get_option('xyz_fbap_smapsoln_userid')));
+ 		$xyzscripts_hash_val=trim(get_option('xyz_fbap_xyzscripts_hash_val'));
+ 		$xyzscripts_user_id=trim(get_option('xyz_fbap_xyzscripts_user_id'));
+ 		$xyz_smap_accountId=0;
+ 		$xyz_smap_licence_key='';
+ 		$auth_secret_key=md5('smapsolutions'.$domain_name.$xyz_smap_accountId.$xyz_fbap_smapsoln_userid.$xyzscripts_user_id.$xyzscripts_hash_val.$xyz_smap_licence_key);
+ 		if($af==1 )
+ 		{
+ 			?>
+ 			<span id='ajax-save' style="display:none;"><img	class="img"  title="Saving details"	src="<?php echo plugins_url('../images/ajax-loader.gif',__FILE__);?>" style="width:65px;height:70px; "></span>
+ 			<span id="auth_message">
+ 				<span style="color: red;" >Application needs authorisation</span> <br>
+ 				<form method="post">
+ 			     <?php wp_nonce_field( 'xyz_smap_fb_auth_nonce' );?>
+ 			     <input type="hidden" value="<?php echo  (is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST']; ?>" id="parent_domain">
+ 					<input type="submit" class="submit_fbap_new" name="fb_auth"
+ 						value="Authorize" onclick="javascript:return fbap_popup_fb_auth('<?php echo urlencode($domain_name);?>','<?php echo $xyz_fbap_smapsoln_userid;?>','<?php echo $xyzscripts_user_id;?>','<?php echo $xyzscripts_hash_val;?>','<?php echo $auth_secret_key;?>');"/><br><br>
+ 				</form></span>
+ 				<?php }
+ 				else if($af==0 )
+ 				{
+ 					?>
+ 					<span id='ajax-save' style="display:none;"><img	class="img"  title="Saving details"	src="<?php echo plugins_url('../images/ajax-loader.gif',__FILE__);?>" style="width:65px;height:70px; "></span>
+ 				<form method="post" id="re_auth_message">
+ 				<?php wp_nonce_field( 'xyz_smap_fb_auth_nonce' );?>
+ 				<input type="hidden" value="<?php echo  (is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST']; ?>" id="parent_domain">
+ 				<input type="submit" class="submit_fbap_new" name="fb_auth"
+ 				value="Reauthorize" title="Reauthorize the account" onclick="javascript:return fbap_popup_fb_auth('<?php echo urlencode($domain_name);?>','<?php echo $xyz_fbap_smapsoln_userid;?>','<?php echo $xyzscripts_user_id;?>','<?php echo $xyzscripts_hash_val;?>','<?php echo $auth_secret_key;?>');"/><br><br>
+ 				</form>
+ 				<?php }
+ 	}
 	if(isset($_GET['auth']) && $_GET['auth']==1 && get_option("xyz_fbap_fb_token")!="")
 	{
 		?>
@@ -197,7 +271,7 @@ function dethide_fbap(id)
 	<?php 	
 	}
 	?>
-	<table class="widefat" style="width: 99%;background-color: #FFFBCC">
+	<table class="widefat" style="width: 99%;background-color: #FFFBCC" id="xyz_fbap_app_creation_note">
 	<tr>
 	<td id="bottomBorderNone" style="border: 1px solid #FCC328;">
 	
@@ -207,7 +281,8 @@ function dethide_fbap(id)
 		<br>In the application page in facebook, navigate to <b>Apps >Add Product > Facebook Login >Quickstart >Web > Site URL</b>. Set the site url as : 
 		<span style="color: red;"><?php echo  (is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST']; ?></span>
 		<br>And then navigate to <b>Apps > Facebook Login > Settings</b>. Set the Valid OAuth redirect URIs as :<br>
-		<span style="color: red;"><?php echo $redirecturl; ?></span><br>For detailed step by step instructions <b><a href="http://help.xyzscripts.com/docs/social-media-auto-publish/faq/how-can-i-create-facebook-application/" target="_blank">Click here</a></b>.
+		<span style="color: red;"><?php echo $redirecturl; ?></span>
+		<br>For detailed step by step instructions <b><a href="http://help.xyzscripts.com/docs/social-media-auto-publish/faq/how-can-i-create-facebook-application/" target="_blank">Click here</a></b>.
 	</div>
 
 	</td>
@@ -227,10 +302,35 @@ function dethide_fbap(id)
 					<td><input id="xyz_fbap_application_name"
 						name="xyz_fbap_application_name" type="text"
 						value="<?php if($ms0=="") {echo esc_html(get_option('xyz_fbap_application_name'));}?>" />
-						<a href="http://help.xyzscripts.com/docs/social-media-auto-publish/faq/how-can-i-create-facebook-application/" target="_blank">How can I create a Facebook Application?</a>
 					</td>
 				</tr>
 				<tr valign="top">
+			<td width="50%">Application Selection
+			</td>
+				<td>
+				<input type="radio" name="xyz_fbap_app_sel_mode" id="xyz_fbap_app_sel_mode_reviewd" value="0" <?php if(get_option('xyz_fbap_app_sel_mode')==0) echo 'checked';?>>
+				Use your own Facebook reviewed application<br>
+				<a href="http://help.xyzscripts.com/docs/social-media-auto-publish/faq/how-can-i-create-facebook-application/" target="_blank" style="padding-left: 30px;">How can I create a Facebook Application?</a><br/>
+				<input type="radio" name="xyz_fbap_app_sel_mode" id="xyz_fbap_app_sel_mode_xyzapp" value="1" <?php if(get_option('xyz_fbap_app_sel_mode')==1) echo 'checked';?>>
+				Use smapsolution.com's Facebook application(Starts from 10 USD per year)<br>
+				<a target="_blank" href="https://help.xyzscripts.com/docs/social-media-auto-publish/faq/how-can-i-use-the-alternate-solution-for-publishing-posts-to-facebook/" style="padding-left: 30px;">How to use smapsolution.com's application?</a>
+				</td>
+			</tr>
+			<?php 
+			if($xyzscripts_user_id =='' || $xyzscripts_hash_val=='' && $xyz_fbap_app_sel_mode==1)
+			{  ?>
+			<tr valign="top" id="xyz_fbap_conn_to_xyzscripts">
+			<td width="50%">	</td>
+			<td width="50%">
+			<span id='ajax-save-xyzscript_acc' style="display:none;"><img	class="img"  title="Saving details"	src="<?php echo plugins_url('../images/ajax-loader.gif',__FILE__);?>" style="width:65px;height:70px; "></span>
+			<span id="connect_to_xyzscripts"style="background-color: #1A87B9;color: white; padding: 4px 5px;
+    text-align: center; text-decoration: none;   display: inline-block;border-radius: 4px;">
+			<a href="javascript:fbap_popup_connect_to_xyzscripts();" style="color:white !important;">Connect your xyzscripts account</a>
+			</span>
+			</td>
+			</tr>
+			<?php }?>
+				<tr valign="top" class="xyz_fbap_facebook_settings">
 					<td width="50%">Application id
 					</td>
 					<td><input id="xyz_fbap_application_id"
@@ -239,7 +339,7 @@ function dethide_fbap(id)
 					</td>
 				</tr>
 
-				<tr valign="top">
+				<tr valign="top" class="xyz_fbap_facebook_settings">
 					<td>Application secret<?php   $apsecret=esc_html(get_option('xyz_fbap_application_secret'));?>
 						
 					</td>
@@ -314,7 +414,7 @@ function dethide_fbap(id)
 					</tr>
 				<?php 
 				$xyz_acces_token=get_option('xyz_fbap_fb_token');
-				if($xyz_acces_token!=""){
+				if($xyz_acces_token!="" && get_option('xyz_fbap_app_sel_mode')==0){
 
 					$offset=0;$limit=100;$data=array();
 					do
@@ -355,13 +455,12 @@ function dethide_fbap(id)
 						?>
 
 <tr valign="top"><td>
-		Select facebook pages for auto publish
+		Select facebook pages for auto publish 
 	</td>
 	<td>
 	
 	<div class="scroll_checkbox">
 	<input type="checkbox" id="select_all_pages" >Select All
-	<br><input type="checkbox" class="selpages" name="fbap_pages_list[]" value="-1" <?php if(in_array(-1, $fbap_pages_ids)) echo "checked" ?>>Profile Page
 
 	<?php 
 	for($i=0;$i<$count;$i++)
@@ -372,11 +471,32 @@ function dethide_fbap(id)
 	<br><input type="checkbox" class="selpages" name="fbap_pages_list[]"  value="<?php  echo $data[$i]->id."-".$data[$i]->access_token;?>" <?php if(in_array($data[$i]->id, $fbap_pages_ids)) echo "checked" ?>><?php echo $data[$i]->name; ?>
 	<?php }
 	//	$page_name=base64_encode(serialize($page_name));?>
-	<input type="hidden" value="<?php echo $page_name;?>" name="hidden_page_name" >
 	</div>
 		</td></tr>
 				<?php 
-				}?>
+				}elseif (get_option('xyz_fbap_app_sel_mode')==1)// &&pagelist frm smap solutions is not empty )
+				{
+				    $xyz_fbap_page_names=stripslashes(get_option('xyz_fbap_page_names'));
+				    $xyz_fbap_secret_key=get_option('xyz_fbap_secret_key');
+				    ?>
+				<tr id="xyz_fbap_selected_pages_tr" style="<?php if($xyz_fbap_page_names=='')echo "display:none;";?>">
+				<td>Selected facebook pages for auto publish</td>
+				<td><div class="scroll_checkbox" id="xyz_fbap_selected_pages" >
+				<?php
+				if($xyz_fbap_page_names!=''){
+					$xyz_fbap_page_names_array=json_decode($xyz_fbap_page_names);
+					foreach ($xyz_fbap_page_names_array as $sel_pageid=>$sel_pagename)
+					{
+					?>
+				 <input type="checkbox" class="selpages" name="fbap_pages_list[]"  value="<?php echo $sel_pageid;?>" disabled checked="checked"><?php echo $sel_pagename; ?><br>
+					<?php }}
+				?>
+				</div>
+			
+				</td>
+				</tr>
+		<?php }
+				?>
 				<tr><td   id="bottomBorderNone"></td>
 					<td  id="bottomBorderNone"><div style="height: 50px;">
 							<input type="submit" class="submit_fbap_new"
@@ -702,6 +822,33 @@ jQuery(document).ready(function() {
 		   checkedval= jQuery("input[name='"+value+"']:checked").val();
 			   XyzFbapToggleRadio(checkedval,value); 
    	});
+   var xyz_fbap_app_sel_mode=jQuery("input[name='xyz_fbap_app_sel_mode']:checked").val();
+   if(xyz_fbap_app_sel_mode !=0){
+	   jQuery('#xyz_fbap_conn_to_xyzscripts').show();
+		jQuery('.xyz_fbap_facebook_settings').hide();
+		jQuery('#xyz_fbap_app_creation_note').hide();
+   }
+   else{
+	   	jQuery('.xyz_fbap_facebook_settings').show();
+	   	jQuery('#xyz_fbap_app_creation_note').show();
+	   	jQuery('#xyz_fbap_conn_to_xyzscripts').hide();
+	   		}
+   jQuery("input[name='xyz_fbap_app_sel_mode']").click(function(){
+	   var xyz_fbap_app_sel_mode=jQuery("input[name='xyz_fbap_app_sel_mode']:checked").val();
+	   if(xyz_fbap_app_sel_mode !=0){
+		    jQuery('#xyz_fbap_app_creation_note').hide();
+			jQuery('.xyz_fbap_facebook_settings').hide();
+			jQuery('#xyz_fbap_conn_to_xyzscripts').show();
+			}
+		   else{
+			jQuery('#xyz_fbap_app_creation_note').show(); 
+		   	jQuery('.xyz_fbap_facebook_settings').show();
+		  	jQuery('#xyz_fbap_conn_to_xyzscripts').hide();
+		   	}
+	   });
+   window.addEventListener('message', function(e) {
+		ProcessChildMessage_2(e.data);
+	} , false);
 }); 
 
 function toggleRadio(value,buttonId)
@@ -784,7 +931,125 @@ jQuery.each(fbap_toggle_element_ids, function( index, value ) {
 			xyz_fbap_show_postCategory(1);
 	});
 	});
+function fbap_popup_fb_auth(domain_name,xyz_fbap_smapsoln_userid,xyzscripts_user_id,xyzscripts_hash_val,auth_secret_key)
+{
+	if(xyzscripts_user_id==''|| xyzscripts_hash_val==''){
+		if(jQuery('#system_notice_area').length==0)
+			jQuery('body').append('<div class="system_notice_area_style0" id="system_notice_area"></div>');
+			jQuery("#system_notice_area").html('Please connect your xyzscripts member account  <span id="system_notice_area_dismiss">Dismiss</span>');
+			jQuery("#system_notice_area").show();
+			jQuery('#system_notice_area_dismiss').click(function() {
+				jQuery('#system_notice_area').animate({
+					opacity : 'hide',
+					height : 'hide'
+				}, 500);
+			});
+			return false;
+	}
+	else{
+	var childWindow = null;
+	var fbap_licence_key='';
+	var account_id=0;
+	var smap_solution_url='<?php echo XYZ_SMAP_SOLUTION_AUTH_URL;?>';
+	childWindow = window.open(smap_solution_url+"authorize/facebook.php?smap_id="+xyz_fbap_smapsoln_userid+"&account_id="+account_id+
+			"&domain_name="+domain_name+"&xyzscripts_user_id="+xyzscripts_user_id+"&xyzscripts_hash_val="+xyzscripts_hash_val
+			+"&smap_licence_key="+fbap_licence_key+"&auth_secret_key="+auth_secret_key, "SmapSolutions Authorization", "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=600,height=600");
+	return false;	}
+}
 
-</script>
-	<?php 
-?>
+function fbap_popup_connect_to_xyzscripts()
+{
+	var childWindow = null;
+	var smap_xyzscripts_url='<?php echo "https://smap.xyzscripts.com/index.php?page=index/register";?>';
+	childWindow = window.open(smap_xyzscripts_url, "Connect to xyzscripts", "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=600,height=600");
+	return false;	
+}
+function ProcessChildMessage_2(message) {
+	var messageType = message.slice(0,5);
+	if(messageType==="error")
+	{
+		message=message.substring(6);
+		if(jQuery('#system_notice_area').length==0)
+		jQuery('body').append('<div class="system_notice_area_style0" id="system_notice_area"></div>');
+		jQuery("#system_notice_area").html(message+' <span id="system_notice_area_dismiss">Dismiss</span>');
+		jQuery("#system_notice_area").show();
+		jQuery('#system_notice_area_dismiss').click(function() {
+			jQuery('#system_notice_area').animate({
+				opacity : 'hide',
+				height : 'hide'
+			}, 500);
+		});
+	}
+	var obj1=jQuery.parseJSON(message);
+	if(obj1.content &&  obj1.userid)
+	{
+		var xyz_userid=obj1.userid;var xyz_user_hash=obj1.content;
+		var xyz_fbap_xyzscripts_accinfo_nonce= '<?php echo wp_create_nonce('xyz_fbap_xyzscripts_accinfo_nonce');?>';
+		var dataString = { 
+				action: 'xyz_fbap_xyzscripts_accinfo_auto_update', 
+				xyz_userid: xyz_userid ,
+				xyz_user_hash: xyz_user_hash,
+				dataType: 'json',
+				_wpnonce: xyz_fbap_xyzscripts_accinfo_nonce
+			};
+		jQuery("#connect_to_xyzscripts").hide();
+		jQuery("#ajax-save-xyzscript_acc").show();
+		jQuery.post(ajaxurl, dataString ,function(response) {
+ 		  var base_url = '<?php echo admin_url('admin.php?page=facebook-auto-publish-settings');?>';//msg - 
+  		 window.location.href = base_url+'&msg=4';
+		});
+	}
+	else if(obj1.pages !='')
+	{
+	var obj1=jQuery.parseJSON(message);
+// 	console.log(obj1);
+	var obj=obj1.pages;
+	var secretkey=obj1.secretkey;
+	var xyz_fbap_fb_numericid=obj1.xyz_fb_numericid;
+	var smapsoln_userid=obj1.smapsoln_userid;
+	jQuery("#xyz_fbap_secret_key").val(secretkey);
+	var list='';
+	for (var key in obj) {
+	  if (obj.hasOwnProperty(key)) {
+	    var val = obj[key];
+	    list=list+"<input type='checkbox' value='"+key+"' checked='checked' disabled>"+val+"<br>";
+	  }
+	}
+	jQuery("#xyz_fbap_page_names").val(JSON.stringify(obj));
+	jQuery("#xyz_fbap_selected_pages").html(list);
+	jQuery("#xyz_fbap_selected_pages_tr").show();
+	jQuery("#auth_message").hide();
+	jQuery("#re_auth_message").show();
+	var xyz_fbap_selected_pages_nonce= '<?php echo wp_create_nonce('xyz_fbap_selected_pages_nonce');?>';
+	var pages_obj = JSON.stringify(obj);
+	var dataString = { 
+			action: 'xyz_fbap_selected_pages_auto_update', 
+			pages: pages_obj ,
+			smap_secretkey: secretkey,
+			xyz_fb_numericid: xyz_fbap_fb_numericid,
+			smapsoln_userid:smapsoln_userid,
+			dataType: 'json',
+			_wpnonce: xyz_fbap_selected_pages_nonce
+		};			
+		jQuery("#re_auth_message").hide();
+		jQuery("#auth_message").hide();
+		jQuery("#ajax-save-xyzscript_acc").show();
+	jQuery.post(ajaxurl, dataString ,function(response) {
+		  var base_url = '<?php echo admin_url('admin.php?page=facebook-auto-publish-settings');?>';//msg - 
+		 window.location.href = base_url+'&msg=5';
+		});
+	}
+	else
+	{
+		if(jQuery('#system_notice_area').length==0)
+			jQuery('body').append('<div class="system_notice_area_style0" id="system_notice_area"></div>');
+			jQuery("#system_notice_area").html('An unexpected error occured,please try again  <span id="system_notice_area_dismiss">Dismiss</span>');
+			jQuery("#system_notice_area").show();
+			jQuery('#system_notice_area_dismiss').click(function() {
+				jQuery('#system_notice_area').animate({
+					opacity : 'hide',
+					height : 'hide'
+				}, 500);
+			});
+	}
+}</script>

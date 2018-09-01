@@ -55,6 +55,13 @@ function fbap_free_destroy()
 	delete_option('fbap_installed_date');
 	delete_option('xyz_fbap_dnt_shw_notice');
 	delete_option('xyz_fbap_credit_dismiss');
+	delete_option('xyz_fbap_app_sel_mode');
+	delete_option('xyz_fbap_page_names');
+	delete_option('xyz_fbap_secret_key');
+	delete_option('xyz_fbap_smapsoln_userid');
+	//delete_option('xyz_fbap_api_calls_used');
+	delete_option('xyz_fbap_xyzscripts_hash_val');
+	delete_option('xyz_fbap_xyzscripts_user_id');
 }
 
 register_uninstall_hook(XYZ_FBAP_PLUGIN_FILE,'fbap_free_network_destroy');

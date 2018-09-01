@@ -11,7 +11,7 @@ if( !defined('ABSPATH') ){ exit();}
 
 
 <div style="text-align: left;padding-left: 7px;"><h3>Auto Publish Logs</h3></div>
-		<span>Last five logs</span>
+		<span>Last ten logs</span>
 		   <table class="widefat" style="width: 99%; margin: 0 auto; border-bottom:none;">
 				<thead>
 					<tr class="xyz_smap_log_tr">
@@ -45,9 +45,10 @@ if( !defined('ABSPATH') ){ exit();}
 									
 					if(is_array($post_fb_logsmain_array))
 					{
-						for($i=4;$i>=0;$i--)
+						for($i=9;$i>=0;$i--)
 						{
-							if($post_fb_logsmain_array[$i]!='')
+							if(array_key_exists($i,$post_fb_logsmain_array)){
+							if(($post_fb_logsmain_array[$i])!='')//if(array_key_exists($i,$post_fb_logsmain_array))
 							{
 								$post_fb_logs=$post_fb_logsmain_array[$i];
 								$postid=$post_fb_logs['postid'];
@@ -73,21 +74,22 @@ if( !defined('ABSPATH') ){ exit();}
 									<td style="vertical-align: middle !important;padding: 5px;">
 									<?php
 									
-								  	if($status=="1")
+								  	if($status=="1"){
 										echo "<span style=\"color:green\">Success</span>";
+								  	}
 									else if($status=="0")
 										echo '';
 									else
 									{
 										$arrval=unserialize($status);
 										foreach ($arrval as $a=>$b)
-											echo "<span style=\"color:red\">".$a." : ".$b."</span><br>";
+											echo $b;
 									}
 									?>
 									</td>
 								</tr>
 								<?php  
-								}
+								}}
 						  }								
 					}
 }

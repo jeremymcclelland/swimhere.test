@@ -105,7 +105,7 @@ function xyz_fbap_getimage($post_ID,$description_org)
 		if(isset($matches[1][0]))
 			$attachmenturl = $matches[1][0];
 		else {
-			apply_filters('the_content', $description_org);
+			$description_org=apply_filters('the_content', $description_org);
 			preg_match_all( '/< *img[^>]*src *= *["\']?([^"\']*)/is', $description_org, $matches );
 			if(isset($matches[1][0]))
 				$attachmenturl = $matches[1][0];
@@ -225,4 +225,27 @@ function xyz_fbap_is_session_started()
 
 
 
+if(!function_exists('xyz_fbap_post_to_facebook'))
+{		function xyz_fbap_post_to_facebook($post_details) {
+			if (function_exists('curl_init'))
+			{
+				$url=XYZ_SMAP_SOLUTION_PUBLISH_URL.'api/facebook.php';
+				$header_array = array();
+				$header_array[]='X-SMAP-AUTH-KEY: '.$post_details['xyz_smap_secret_key'];
+				$post_parameters['post_params'] = serialize($post_details);
+				$post_parameters['request_hash'] = md5($post_parameters['post_params'].$post_details['xyz_smap_secret_key']);
+		
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $header_array);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $post_parameters);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER,(get_option('xyz_fbap_peer_verification')=='1') ? true : false);
+				$content = curl_exec($ch);
+				curl_close($ch);
+				return $content;
+			}
+		}
+}
 ?>
