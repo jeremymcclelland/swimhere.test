@@ -1,0 +1,6 @@
+<?php exit('Access denied'); __halt_compiler(); ?>
+******************************************************************
+This file is used by the Wordfence Web Application Firewall. Read 
+more at https://docs.wordfence.com/en/Web_Application_Firewall_FAQ
+******************************************************************
+a:19:{s:6:"apiKey";s:192:"934eac707f1ce5e91c93deab915f033ee40c1927a4214c00d9bb2d3bb9c446e45ff9388924749a39083ccb5ea14be307fe2ae9022db535230154670aa6d4fbc4a40f3f8abc2067907cd563af4523893161f707354047dab3b706a385b51f5d49";s:6:"isPaid";b:0;s:7:"siteURL";s:20:"http://swimhere.test";s:7:"homeURL";s:20:"http://swimhere.test";s:14:"whitelistedIPs";s:0:"";s:9:"howGetIPs";s:0:"";s:25:"howGetIPs_trusted_proxies";s:0:"";s:11:"other_WFNet";b:1;s:13:"pluginABSPATH";s:43:"/Users/sdco2/Documents/sites/swimhere.test/";s:9:"serverIPs";s:22:"["71.226.102.3","::1"]";s:15:"blockCustomText";s:0:"";s:21:"betaThreatDefenseFeed";b:0;s:20:"disableWAFIPBlocking";s:1:"0";s:13:"timeoffset_wf";s:1:"0";s:13:"patternBlocks";s:2:"[]";s:13:"countryBlocks";s:154:"{"blocks":[],"action":"block","loggedInBlocked":"0","bypassRedirURL":"","bypassRedirDest":"","bypassViewURL":"","redirURL":"","cookieVal":"5a48035a7dcda"}";s:11:"otherBlocks";s:33:"{"blockedTime":"300","blocks":[]}";s:8:"lockouts";s:37:"{"lockedOutTime":14400,"lockouts":[]}";s:23:"advancedBlockingEnabled";s:1:"1";}

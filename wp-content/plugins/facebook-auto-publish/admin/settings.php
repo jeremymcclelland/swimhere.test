@@ -109,8 +109,8 @@ if(isset($_POST['fb']))
 		else if ($xyz_fbap_app_sel_mode_old != $xyz_fbap_app_sel_mode)
 		{
 			update_option('xyz_fbap_af',1);
-			update_option('xyz_fbap_fb_token','');
-			update_option('xyz_fbap_secret_key','');
+// 			update_option('xyz_fbap_fb_token','');
+		//	update_option('xyz_fbap_secret_key','');
 			update_option('xyz_fbap_page_names','');
 		}
 		update_option('xyz_fbap_application_name',$app_name);
@@ -786,7 +786,8 @@ else
 	?>
 	<script type="text/javascript">
 	//drpdisplay(); 
-
+var xyzscripts_userid='';
+xyzscripts_userid='<?php echo get_option('xyz_fbap_xyzscripts_user_id');?>';
 var catval='<?php echo $xyz_fbap_include_categories1; ?>';
 var custtypeval='<?php echo esc_html($xyz_fbap_include_customposttypes); ?>';
 var get_opt_cats='<?php echo esc_html(get_option('xyz_fbap_include_posts'));?>';
@@ -838,6 +839,7 @@ jQuery(document).ready(function() {
 	   if(xyz_fbap_app_sel_mode !=0){
 		    jQuery('#xyz_fbap_app_creation_note').hide();
 			jQuery('.xyz_fbap_facebook_settings').hide();
+			if(xyzscripts_userid=='')
 			jQuery('#xyz_fbap_conn_to_xyzscripts').show();
 			}
 		   else{
@@ -953,7 +955,7 @@ function fbap_popup_fb_auth(domain_name,xyz_fbap_smapsoln_userid,xyzscripts_user
 	var smap_solution_url='<?php echo XYZ_SMAP_SOLUTION_AUTH_URL;?>';
 	childWindow = window.open(smap_solution_url+"authorize/facebook.php?smap_id="+xyz_fbap_smapsoln_userid+"&account_id="+account_id+
 			"&domain_name="+domain_name+"&xyzscripts_user_id="+xyzscripts_user_id+"&xyzscripts_hash_val="+xyzscripts_hash_val
-			+"&smap_licence_key="+fbap_licence_key+"&auth_secret_key="+auth_secret_key, "SmapSolutions Authorization", "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=600,height=600");
+			+"&smap_licence_key="+fbap_licence_key+"&auth_secret_key="+auth_secret_key+"&free_plugin_source=fbap", "SmapSolutions Authorization", "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=600,height=600");
 	return false;	}
 }
 
@@ -981,7 +983,7 @@ function ProcessChildMessage_2(message) {
 		});
 	}
 	var obj1=jQuery.parseJSON(message);
-	if(obj1.content &&  obj1.userid)
+	if(obj1.content &&  obj1.userid && obj1.xyzscripts_user)
 	{
 		var xyz_userid=obj1.userid;var xyz_user_hash=obj1.content;
 		var xyz_fbap_xyzscripts_accinfo_nonce= '<?php echo wp_create_nonce('xyz_fbap_xyzscripts_accinfo_nonce');?>';
@@ -999,10 +1001,8 @@ function ProcessChildMessage_2(message) {
   		 window.location.href = base_url+'&msg=4';
 		});
 	}
-	else if(obj1.pages !='')
+	else if(obj1.pages && obj1.smapsoln_userid)
 	{
-	var obj1=jQuery.parseJSON(message);
-// 	console.log(obj1);
 	var obj=obj1.pages;
 	var secretkey=obj1.secretkey;
 	var xyz_fbap_fb_numericid=obj1.xyz_fb_numericid;
@@ -1033,23 +1033,10 @@ function ProcessChildMessage_2(message) {
 		};			
 		jQuery("#re_auth_message").hide();
 		jQuery("#auth_message").hide();
-		jQuery("#ajax-save-xyzscript_acc").show();
-	jQuery.post(ajaxurl, dataString ,function(response) {
+		jQuery("#ajax-save").show();
+		jQuery.post(ajaxurl, dataString ,function(response) {
 		  var base_url = '<?php echo admin_url('admin.php?page=facebook-auto-publish-settings');?>';//msg - 
 		 window.location.href = base_url+'&msg=5';
 		});
-	}
-	else
-	{
-		if(jQuery('#system_notice_area').length==0)
-			jQuery('body').append('<div class="system_notice_area_style0" id="system_notice_area"></div>');
-			jQuery("#system_notice_area").html('An unexpected error occured,please try again  <span id="system_notice_area_dismiss">Dismiss</span>');
-			jQuery("#system_notice_area").show();
-			jQuery('#system_notice_area_dismiss').click(function() {
-				jQuery('#system_notice_area').animate({
-					opacity : 'hide',
-					height : 'hide'
-				}, 500);
-			});
 	}
 }</script>
