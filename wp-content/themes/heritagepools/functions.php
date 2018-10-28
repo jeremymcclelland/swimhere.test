@@ -253,6 +253,8 @@ function heritagepools_child_enqueue_parent_style() {
 		wp_enqueue_script( 'fancy-box', get_stylesheet_directory_uri() . '/assets/plugin/components/Fancybox/jquery.fancybox.min.js',array('jquery') );
 		wp_enqueue_script( 'mediaBoxes-dropdown', get_stylesheet_directory_uri() . '/assets/plugin/js/jquery.mediaBoxes.dropdown.js',array('jquery') );
 		wp_enqueue_script( 'mediaBoxes', get_stylesheet_directory_uri() . '/assets/plugin/js/jquery.mediaBoxes.js',array('jquery') );
+
+		wp_enqueue_script( 'vide', get_stylesheet_directory_uri() . '/assets/js/jquery.vide.min.js',array('jquery') );
 	//}	
 	
 	

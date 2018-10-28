@@ -107,3 +107,19 @@
 <?php get_sidebar('custom-navigation'); ?>
 
 </div>
+
+
+<?php if(is_front_page()) { ?>
+
+<div id="bg-video" data-vide-bg="<?php echo get_stylesheet_directory_uri(); ?>/assets/media/bg-video" data-vide-options="loop: true, muted: true">
+	
+
+	<div class="veno-box-inner-wrapper">
+		<div class="wrap">
+			<a class="venobox btn btn-default btn-orange-general" data-autoplay="true" data-vbtype="video" href="https://youtu.be/yBTTnGdvSZA?rel=0">Full Video</a>
+		</div>
+	</div>
+
+</div>
+
+<?php } ?>
