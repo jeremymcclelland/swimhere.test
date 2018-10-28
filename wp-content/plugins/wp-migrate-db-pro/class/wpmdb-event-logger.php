@@ -6,8 +6,9 @@ class WPMDB_Event_Logger {
 
 	public function register( $wpmdb ) {
 		$this->wpmdb = $wpmdb;
+		$settings    = $this->wpmdb->get( 'settings' );
 		add_action( 'wpmdb_additional_settings_advanced', array( $this, 'template_toggle_usage_tracking' ) );
-		if ( false !== $this->wpmdb->get( 'settings' )['allow_tracking'] ) {
+		if ( false !== $settings['allow_tracking'] ) {
 			add_action( 'wpmdb_initiate_migration', array( $this, 'log_migration_event' ), 100 );
 			add_action( 'wpmdb_notices', array( $this, 'template_notice_enable_usage_tracking' ) );
 		}
@@ -62,7 +63,7 @@ class WPMDB_Event_Logger {
 			$log_data[ $site . '-is_subdomain_install' ] = $info['is_subdomain_install'];
 		}
 
-		$diagnostic_log = [];
+		$diagnostic_log = array();
 
 		foreach ( $this->wpmdb->get_diagnostic_info() as $group_name => $data ) {
 			foreach ( $data as $key => $val ) {
@@ -122,7 +123,8 @@ class WPMDB_Event_Logger {
 	}
 
 	public function template_notice_enable_usage_tracking() {
-		if ( 'boolean' !== gettype( $this->wpmdb->get( 'settings' )['allow_tracking'] ) ) {
+		$settings = $this->wpmdb->get( 'settings' );
+		if ( 'boolean' !== gettype( $settings['allow_tracking'] ) ) {
 			$this->wpmdb->template( 'notice-enable-usage-tracking', 'pro' );
 		}
 	}

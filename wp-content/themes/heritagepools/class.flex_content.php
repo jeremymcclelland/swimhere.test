@@ -1,4 +1,4 @@
-<?
+<?php
 class flex_content_builder{
 	
 	private $main_page_id = '';

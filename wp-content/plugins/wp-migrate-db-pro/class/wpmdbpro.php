@@ -1798,7 +1798,8 @@ class WPMDBPro extends WPMDB {
 		$logger_class_file = dirname( __FILE__ ) . '/wpmdb-event-logger.php';
 		if ( file_exists( $logger_class_file ) ) {
 			require_once( $logger_class_file );
-			( new WPMDB_Event_Logger )->register( $this );
+			$logger = new WPMDB_Event_Logger();
+			$logger->register( $this );
 		}
 	}
 }

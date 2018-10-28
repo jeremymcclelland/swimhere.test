@@ -50,7 +50,7 @@ get_header();
 <?php } ?>
 
 
-<?
+<?php
 
 include(get_stylesheet_directory().'/class.flex_content.php');
 	

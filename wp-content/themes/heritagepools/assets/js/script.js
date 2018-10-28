@@ -599,7 +599,7 @@ jQuery( document ).ready(function() {
 	
 	
 	jQuery('#mapplic').mapplic({
-		source: 'https://www.swimhere.com/wp-content/themes/heritagepools/anatomy.json',
+		source: '/wp-content/themes/heritagepools/anatomy.json',
 		height: 600,
 		sidebar: true,
 		minimap: false,

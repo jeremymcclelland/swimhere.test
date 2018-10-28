@@ -10,7 +10,7 @@ if(!$alignment){
 	
 	
 ?>
-<div class="general-header text-center" style="background-image: url('<?php echo $featured_image[url]; ?>'); background-position: center <?php echo $alignment; ?>; background-size: cover;">
+<div class="general-header text-center" style="background-image: url('<?php echo $featured_image['url']; ?>'); background-position: center <?php echo $alignment; ?>; background-size: cover;">
 	
 	<a class="btn btn-orange-general back-button hidden" href="<?php get_site_url(); ?>/our-pools/completed-projects/"><i class="fa fa-angle-left"></i> All Projects</a>	
 	
