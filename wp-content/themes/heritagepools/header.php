@@ -111,7 +111,7 @@
 
 <?php if(is_front_page()) { ?>
 
-<div id="bg-video" data-vide-bg="<?php echo get_stylesheet_directory_uri(); ?>/assets/media/bg-video" data-vide-options="loop: true, muted: true">
+<div id="bg-video" data-vide-bg="<?php echo get_stylesheet_directory_uri(); ?>/assets/media/bg-video" data-vide-options="loop: true, muted: true, posterType: jpg">
 	
 
 	<div class="veno-box-inner-wrapper">

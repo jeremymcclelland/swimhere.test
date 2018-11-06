@@ -1,5 +1,5 @@
 jQuery( document ).ready(function() {  
-	
+
     jQuery('.search-grid').mediaBoxes({
     	filterContainer: '#filter',
     	search: '#search',
@@ -766,7 +766,22 @@ jQuery('[data-toggle=dropdown]').each(function() {
 });
 
 
-jQuery(function() {
-    jQuery('img').lazy();
-});
+jQuery( document ).ready(function() {  
 
+	jQuery(function() {
+	    jQuery('img').lazy({
+	    	afterLoad: function(element) {
+            // called after an element was successfully handled
+            	console.log('loaded');
+        	},
+        	onFinishedAll: function() {
+            // called once all elements was handled
+        		console.log('done');
+        	},
+        	beforeLoad: function(element) {
+            // called before an elements gets handled
+            console.log('none');
+        	},
+	    });
+	});
+});
