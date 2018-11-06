@@ -1,3 +1,5 @@
+jQuery( document ).ready(function() {  
+	
     jQuery('.search-grid').mediaBoxes({
     	filterContainer: '#filter',
     	search: '#search',
@@ -108,9 +110,9 @@
         
     });
     
+
     
-    
-        jQuery('.project-grid').mediaBoxes({
+    jQuery('.project-grid').mediaBoxes({
     	search: '#search',
     	sortContainer: '#sort',
     	deepLinkingOnFilter: true,
@@ -146,7 +148,7 @@
         
         
     });
-    
+
     
     jQuery('.pool-options-grid').mediaBoxes({
     	search: '#search',
@@ -185,7 +187,7 @@
     });
     
     
-        jQuery('.pool-options-grid').mediaBoxes({
+    jQuery('.pool-options-grid').mediaBoxes({
     	search: '#search',
     	sortContainer: '#sort',
     	deepLinkingOnFilter: true,
@@ -222,7 +224,7 @@
     }); 
     
     
-        jQuery('.team-member-grid').mediaBoxes({
+    jQuery('.team-member-grid').mediaBoxes({
     	search: '#search',
     	sortContainer: '#sort',
     	deepLinkingOnFilter: true,
@@ -258,7 +260,7 @@
         
     }); 
 
-	    jQuery('.blog-grid').mediaBoxes({
+	jQuery('.blog-grid').mediaBoxes({
     	filterContainer: '.filters-container',
     	search: '#search',
     	sortContainer: '#sort',
@@ -294,7 +296,7 @@
         
     }); 
 
- 
+}); //ends document ready 
 	
 
 
@@ -764,4 +766,7 @@ jQuery('[data-toggle=dropdown]').each(function() {
 });
 
 
+jQuery(function() {
+    jQuery('img').lazy();
+});
 

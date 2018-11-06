@@ -67,6 +67,7 @@ $pool_type_name = $pool_type->name;
 					
 					$pool_types = get_the_terms(get_the_ID(), 'pool-type');
 					
+					$pool_type_class = '';
 					foreach($pool_types as $pool_type) {
 						
 						$pool_type_class .= ' ' . $pool_type->slug;

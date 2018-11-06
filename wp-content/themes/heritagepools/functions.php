@@ -260,6 +260,8 @@ function heritagepools_child_enqueue_parent_style() {
 	
 	
 	wp_enqueue_script( 'light-gallery', get_stylesheet_directory_uri() . '/assets/js/lightGallery/lightgallery-all.js',array('jquery'));
+
+	wp_enqueue_script( 'lazy-load', get_stylesheet_directory_uri() . '/assets/js/jquery.lazy.min.js',array('jquery'));
 	
 
 	wp_enqueue_script( 'my-script', get_stylesheet_directory_uri() . '/assets/js/script.js',array('jquery'));
@@ -351,7 +353,7 @@ add_action('acf/init', 'my_acf_init');
 function exclude_discontinued( $query ) {
   if( !is_admin() && $query->is_main_query() && is_post_type_archive( 'pool-liner' ) ) {
     $meta_query = $query->get('meta_query');
-    $meta_query[] = array(
+    $meta_query[''] = array(
       'key' => 'discontinued',
       'value' => '0',
       'compare' => 'IN',
