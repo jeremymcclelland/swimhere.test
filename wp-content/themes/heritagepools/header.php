@@ -116,7 +116,7 @@
 
 	<div class="veno-box-inner-wrapper">
 		<div class="wrap">
-			<a class="venobox btn btn-default btn-orange-general" data-autoplay="true" data-vbtype="iframe" href="<?php echo get_stylesheet_directory_uri(); ?>/assets/media/full.mp4">Full Video</a>
+			<a class="venobox btn btn-default btn-orange-general" data-vbtype="video" data-autoplay="true" href="https://youtu.be/QtJ-NjCmT4I?autoplay=1">Full Video</a>
 		</div>
 	</div>
 
