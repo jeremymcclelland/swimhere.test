@@ -122,4 +122,15 @@
 
 </div>
 
+
+<div id="mobile-video" style="background: url('<?php echo get_stylesheet_directory_uri(); ?>/assets/media/mobile_rainsong.jpg') center center / cover;">
+	
+
+	<div class="wrap">
+		<a class="venobox btn btn-default btn-orange-general" data-vbtype="video" data-autoplay="true" href="https://youtu.be/QtJ-NjCmT4I?autoplay=1">Watch Video</a>
+	</div>
+
+</div>
+
+
 <?php } ?>
