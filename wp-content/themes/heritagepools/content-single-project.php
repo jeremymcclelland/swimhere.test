@@ -12,7 +12,9 @@ $coping = get_field('acf_pool_coping');
 $decking = get_field('acf_pool_decking');
 $features = get_field('acf_pool_features');
  
- $liner = get_field('project_liner_type');
+$liner = get_field('project_liner_type');
+
+$pool_size = get_field('project_pool_size');
  
  
  
@@ -45,6 +47,10 @@ if($discontinued){
 	<hr>	
 	<h2 class="pool-type">Pool Type</h2>
 	<p><?php echo $type->name; ?></p>
+
+	<hr>	
+	<h2 class="pool-type">Pool Size</h2>
+	<p><?php echo $pool_size; ?></p>
 	
 	<hr>	
 	<h2 class="pool-type">Coping</h2>

@@ -22,6 +22,8 @@ $pool_type = get_field('acf_pool_type');
 
 $pool_type_name = $pool_type->name;
 
+$pool_size = get_field('project_pool_size');
+
 
 ?>
 
@@ -95,6 +97,7 @@ $pool_type_name = $pool_type->name;
 		            <div class="media-box-content">
 		                <div class="media-box-title">Project: <?php the_title(); ?></div>
 		                <div class="media-box-pool-type"><p><?php echo $pool_type_name; ?></p></div>
+		                <div class="media-box-pool-type"><p>Size: <?php echo $pool_size; ?></p></div>
 		                <div class="media-box-text">
 		                    <?php the_excerpt(); ?><a class="btn btn-orange-general" href="<?php the_permalink(); ?>">View Details</a>
 		                </div>
