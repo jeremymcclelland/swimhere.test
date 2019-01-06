@@ -61,7 +61,7 @@ if($discontinued){
 	$pool_coping_color = get_field('pool_coping_color');
 
 	if($pool_coping_color){
-		echo '<p>' . $pool_coping_color . '</p>';
+		echo '<p>Coping Color: ' . $pool_coping_color . '</p>';
 	}
 
 	?>
