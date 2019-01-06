@@ -33,17 +33,23 @@ $pool_size = get_field('project_pool_size');
 					$term_classes = '';
 					
 					$terms = get_the_terms(get_the_ID(), 'pool-highlight');
-					
-					foreach($terms as $term) {
-						
-						$term_classes .= ' ' . $term->slug;
-						
-					    if(!empty($output))
-					        
-					        $output .= ', ';
-							$output .= '<span class="cat">'.$term->name.'</span>';
+
+					$pool_highlights_archive_override = get_field('pool_highlights_archive_override');
+
+					if($pool_highlights_archive_override){
+						$output = '<span>' . $pool_highlights_archive_override . '</span>';
+					} else {
+
+						foreach($terms as $term) {
+							
+							$term_classes .= ' ' . $term->slug;
+							
+						    if(!empty($output))
+						        
+						        $output .= ', ';
+								$output .= '<span class="cat">'.$term->name.'</span>';
+						}
 					}
-					
 					
 					$coping_classes = '';
 					$copings = get_the_terms(get_the_ID(), 'pool-coping');

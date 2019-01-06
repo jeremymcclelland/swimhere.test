@@ -62,20 +62,35 @@ if($discontinued){
 	
 	<hr>
 	<h2 class="pool-features">Highlights</h2>
-	<ul class="features-list">
-		<?php
-			
-			foreach($features as $feature){
+
+	<?php
+
+	$pool_highlights_override = get_field('pool_highlights_override');
+
+	if($pool_highlights_override) {
+
+		echo $pool_highlights_override;
+	} else {
+
+		echo '<ul class="features-list">';
+
+		foreach($features as $feature){
 				
-				echo '<li>' . $feature->name . '</li>';
+			echo '<li>' . $feature->name . '</li>';
 				
-			}
-			
-			
-		?>
+		}
+
+
+		echo '</ul>';
+	}
+
+
+	?>
+
+	
 		
 		
-	</ul>
+	
 	<hr>
 	
 	<?php if($liner) { ?>
