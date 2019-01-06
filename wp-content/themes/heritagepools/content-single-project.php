@@ -70,6 +70,17 @@ if($discontinued){
 	<hr>	
 	<h2 class="pool-type">Decking</h2>
 	<p><?php echo $decking->name; ?></p>
+
+	<?php
+
+	$pool_decking_color = get_field('pool_decking_color');
+
+	if($pool_decking_color){
+		echo '<p>Decking Color: ' . $pool_decking_color . '</p>';
+	}
+
+	?>
+
 	
 	<hr>
 	<h2 class="pool-features">Highlights</h2>
