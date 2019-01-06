@@ -55,6 +55,17 @@ if($discontinued){
 	<hr>	
 	<h2 class="pool-type">Coping</h2>
 	<p><?php echo $coping->name; ?></p>
+
+	<?php
+
+	$pool_coping_color = get_field('pool_coping_color');
+
+	if($pool_coping_color){
+		echo '<p>' . $pool_coping_color . '</p>';
+	}
+
+	?>
+
 	
 	<hr>	
 	<h2 class="pool-type">Decking</h2>
