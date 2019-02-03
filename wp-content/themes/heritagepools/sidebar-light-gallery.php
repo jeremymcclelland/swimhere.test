@@ -50,17 +50,48 @@ if($project_gallery){
 	
 <script>
 	
+
+	
+
+
+	jQuery( document ).ready(function() {
+	    if (window.location.hash != "") {
+
+	    	$hash = window.location.hash;
+	    	$slide = $hash.substring($hash.indexOf('slide='));
+	    	$slide = $slide.replace('slide=','');
+
+	    	console.log($slide);
+
+	    	$g = jQuery('#photo-gallery');
+
+			$photo_gallery = $g.lightGallery({
+				dynamic: true,
+			    mousewheel:	true,
+			    hash: true,
+			    preload: 2,
+			    index: $slide,
+			    dynamicEl: [
+				<?php echo $gallery_html; ?>
+			    ]
+			});
+
+		}
+	});
 	
 	
 	document.getElementById('photo-gallery').addEventListener('click', function() {
-	   	jQuery('#photo-gallery').lightGallery({
+	   	$photo_gallery = jQuery('#photo-gallery').lightGallery({
 			dynamic: true,
 		    mousewheel:	true,
+		    hash: true,
 		    preload: 2,
 		    dynamicEl: [
 			<?php echo $gallery_html; ?>
 		    ]
 		}); 
+
+		$photo_gallery.data('lightGallery').slide(2);
 
 	 
 	});
