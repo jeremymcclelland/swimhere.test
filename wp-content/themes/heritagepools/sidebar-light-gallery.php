@@ -91,7 +91,6 @@ if($project_gallery){
 		    ]
 		}); 
 
-		$photo_gallery.data('lightGallery').slide(2);
 
 	 
 	});

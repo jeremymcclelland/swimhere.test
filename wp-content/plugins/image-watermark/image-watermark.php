@@ -2,7 +2,7 @@
 /*
 Plugin Name: Image Watermark
 Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
-Version: 1.6.4
+Version: 1.6.5
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
@@ -12,7 +12,7 @@ Text Domain: image-watermark
 Domain Path: /languages
 
 Image Watermark
-Copyright (C) 2013-2017, Digital Factory - info@digitalfactory.pl
+Copyright (C) 2013-2019, Digital Factory - info@digitalfactory.pl
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -32,7 +32,7 @@ define( 'IMAGE_WATERMARK_PATH', plugin_dir_path( __FILE__ ) );
  * Image Watermark class.
  *
  * @class Image_Watermark
- * @version	1.6.4
+ * @version	1.6.5
  */
 final class Image_Watermark {
 
@@ -81,7 +81,7 @@ final class Image_Watermark {
 				'backup_quality' => 90
 			)
 		),
-		'version'	 => '1.6.4'
+		'version'	 => '1.6.5'
 	);
 	public $options = array();
 
@@ -129,7 +129,6 @@ final class Image_Watermark {
 
 		// create backup folder and security if enabled
 		if ( $this->options['backup']['backup_image'] ) {
-
 			if ( is_writable( $upload_dir['basedir'] ) ) {
 				$this->is_backup_folder_writable = true;
 
@@ -143,13 +142,12 @@ final class Image_Watermark {
 						// htaccess security
 						file_put_contents( IMAGE_WATERMARK_BACKUP_DIR . DIRECTORY_SEPARATOR . '.htaccess', 'deny from all' );
 					}
-				} else {
+				} else
 					$this->is_backup_folder_writable = false;
-				}
-			} else {
+			} else
 				$this->is_backup_folder_writable = false;
-			}
-			if ( true !== $this->is_backup_folder_writable ) {
+
+			if ( $this->is_backup_folder_writable !== true ) {
 				// disable backup setting
 				$this->options['backup']['backup_image'] = false;
 				update_option( 'image_watermark_options', $this->options );
@@ -435,12 +433,12 @@ wp-logo-jpg					+		+
 
 			// admin
 			if ( $this->is_admin === true ) {
-				if ( $this->options['watermark_image']['plugin_off'] == 1 && $this->options['watermark_image']['url'] != 0 && in_array( $file['type'], $this->allowed_mime_types ) ) {
+				if ( $this->options['watermark_image']['plugin_off'] == 1 && wp_attachment_is_image( $this->options['watermark_image']['url'] ) && in_array( $file['type'], $this->allowed_mime_types ) ) {
 					add_filter( 'wp_generate_attachment_metadata', array( $this, 'apply_watermark' ), 10, 2 );
 				}
 				// frontend
 			} else {
-				if ( $this->options['watermark_image']['frontend_active'] == 1 && $this->options['watermark_image']['url'] != 0 && in_array( $file['type'], $this->allowed_mime_types ) ) {
+				if ( $this->options['watermark_image']['frontend_active'] == 1 && wp_attachment_is_image( $this->options['watermark_image']['url'] ) && in_array( $file['type'], $this->allowed_mime_types ) ) {
 					add_filter( 'wp_generate_attachment_metadata', array( $this, 'apply_watermark' ), 10, 2 );
 				}
 			}
@@ -504,7 +502,7 @@ wp-logo-jpg					+		+
 
 		// only if manual watermarking is turned and we have a valid action
 		// if the action is NOT "removewatermark" we also require a watermark image to be set
-		if ( $post_id > 0 && $action && $this->options['watermark_image']['manual_watermarking'] == 1 && ( $this->options['watermark_image']['url'] != 0 || $action == 'removewatermark' ) ) {
+		if ( $post_id > 0 && $action && $this->options['watermark_image']['manual_watermarking'] == 1 && ( wp_attachment_is_image( $this->options['watermark_image']['url'] ) || $action == 'removewatermark' ) ) {
 			$data = wp_get_attachment_metadata( $post_id, false );
 
 			// is this really an image?
@@ -554,7 +552,7 @@ wp-logo-jpg					+		+
 
 			// only if manual watermarking is turned and we have a valid action
 			// if the action is NOT "removewatermark" we also require a watermark image to be set
-			if ( $action && $this->options['watermark_image']['manual_watermarking'] == 1 && ( $this->options['watermark_image']['url'] != 0 || $action == 'removewatermark' ) ) {
+			if ( $action && $this->options['watermark_image']['manual_watermarking'] == 1 && ( wp_attachment_is_image( $this->options['watermark_image']['url'] ) || $action == 'removewatermark' ) ) {
 				// security check
 				check_admin_referer( 'bulk-media' );
 
@@ -716,10 +714,11 @@ wp-logo-jpg					+		+
 	 * @return array
 	 */
 	public function apply_watermark( $data, $attachment_id, $method = '' ) {
-		$post = get_post( (int) $attachment_id );
+		$attachment_id = (int) $attachment_id;
+		$post = get_post( $attachment_id );
 		$post_id = ( ! empty( $post ) ? (int) $post->post_parent : 0 );
 
-		if ( $attachment_id == $this->options['watermark_image']['url'] ) {
+		if ( $attachment_id === (int) $this->options['watermark_image']['url'] ) {
 			// this is the current watermark, do not apply
 			return array( 'error' => __( 'Watermark prevented, this is your selected watermark image', 'image-watermark' ) );
 		}
@@ -901,11 +900,11 @@ wp-logo-jpg					+		+
 				$exifadded = ! $exifdata;
 				$iptcadded = ! $iptcdata;
 
-				while ( ( substr( $destfilecontent, 0, 2 ) & 0xFFF0 ) === 0xFFE0 ) {
-					$segmentlen = ( substr( $destfilecontent, 2, 2 ) & 0xFFFF );
+				while ( ( $this->get_safe_chunk( substr( $destfilecontent, 0, 2 ) ) & 0xFFF0 ) === 0xFFE0 ) {
+					$segmentlen = ( $this->get_safe_chunk( substr( $destfilecontent, 2, 2 ) ) & 0xFFFF );
 
 					// last 4 bits of second byte is IPTC segment
-					$iptcsegmentnumber = ( substr( $destfilecontent, 1, 1 ) & 0x0F );
+					$iptcsegmentnumber = ( $this->get_safe_chunk( substr( $destfilecontent, 1, 1 ) ) & 0x0F );
 
 					if ( $segmentlen <= 2 )
 						return false;
@@ -953,6 +952,21 @@ wp-logo-jpg					+		+
 	}
 
 	/**
+	 * Get integer value of binary chunk.
+	 *
+	 * @param bin $value Binary data
+	 * @return int
+	 */
+	private function get_safe_chunk( $value ) {
+		// check for numeric value
+		if ( is_numeric( $value ) ) {
+			// cast to integer to do bitwise AND operation
+			return (int) $value;
+		} else
+			return 0;
+	}
+
+	/**
 	 * Apply watermark to image.
 	 *
 	 * @param int $attachment_id Attachment ID
@@ -967,6 +981,9 @@ wp-logo-jpg					+		+
 
 		// get image mime type
 		$mime = wp_check_filetype( $image_path );
+
+		if ( ! wp_attachment_is_image( $options['watermark_image']['url'] ) )
+			return;
 
 		// get watermark path
 		$watermark_file = wp_get_attachment_metadata( $options['watermark_image']['url'], true );
@@ -1071,9 +1088,15 @@ wp-logo-jpg					+		+
 			// get image resource
 			$image = $this->get_image_resource( $filepath, $mime['type'] );
 
-			if ( false !== $image ) {
+			if ( $image !== false ) {
 				// create backup directory if needed
 				wp_mkdir_p( $this->get_image_backup_folder_location( $data['file'] ) );
+
+				// get path to the backup file
+				$path = pathinfo( $backup_filepath );
+
+				// create subfolders in backup folder if needed
+				wp_mkdir_p( $path['dirname'] );
 
 				// save backup image
 				$this->save_image_file( $image, $mime['type'], $backup_filepath, $this->options['backup']['backup_quality'] );
@@ -1299,11 +1322,14 @@ wp-logo-jpg					+		+
 	 * Add watermark image to an image.
 	 *
 	 * @param resource $image Image resource
-	 * @param array	$options Plugin options
-	 * @param array	$upload_dir	WP upload dir data
-	 * @return resource	Watermarked image
+	 * @param array $options Plugin options
+	 * @param array $upload_dir WP upload dir data
+	 * @return mixed Watermarked image
 	 */
 	private function add_watermark_image( $image, $options, $upload_dir ) {
+		if ( ! wp_attachment_is_image( $options['watermark_image']['url'] ) )
+			return false;
+
 		$watermark_file = wp_get_attachment_metadata( $options['watermark_image']['url'], true );
 		$url = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . $watermark_file['file'];
 		$watermark_file_info = getimagesize( $url );

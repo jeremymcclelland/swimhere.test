@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: image, images, picture, photo, watermark, watermarking, protection, image protection, image security, plugin
 Requires at least: 4.0
-Tested up to: 4.9.2
-Stable tag: 1.6.4
+Tested up to: 5.1
+Stable tag: 1.6.5
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -53,6 +53,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.6.5 =
+* Fix: Improved support for PHP 7 and above
+* Fix: Backup folders handling of date based organized uploads
 
 = 1.6.4 =
 * Fix: Transparent PNG issues with ImageMagic library
@@ -180,5 +184,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.6.4 =
-* Fix: Transparent PNG issues with ImageMagic library
+= 1.6.5 =
+* Fix: Improved support for PHP 7 and above
+* Fix: Backup folders handling of date based organized uploads
