@@ -27,7 +27,8 @@
  * Now that we have a unique version for all plugins
  * we define the version here
  */
-$toolset_common_version = 262000;
+$toolset_common_version = 337000;
+
 
 
 /* ---------------------------------------------------------------------- *\
@@ -79,7 +80,7 @@ if ( ! function_exists( 'toolset_common_initialize' ) ) {
 
         $path = untrailingslashit( $path );
 		$url = untrailingslashit( $url );
-        
+
         // Save the url in the matching path
         foreach ( $toolset_common_paths as $key => $data ) {
             if ( $toolset_common_paths[ $key ]['path'] == $path ) {

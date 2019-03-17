@@ -29,8 +29,7 @@ if ( !defined( 'WPCF_VERSION' ) ) {
  * Forced priority
  */
 if ( !defined( 'TYPES_INIT_PRIORITY' ) ) {
-    // Early start ( some plugins use 'init' with priority 0 ).
-    define( 'TYPES_INIT_PRIORITY', -1 );
+    define( 'TYPES_INIT_PRIORITY', 1 );
 }
 
 /**
@@ -113,6 +112,8 @@ wpcf_embedded_after_setup_theme_hook();
  */
 $GLOBALS['wpcf'] = new stdClass();
 
+// load fields functions (required to be loaded pre init as Elementor Pro demands on it)
+require_once WPCF_EMBEDDED_INC_ABSPATH . '/fields.php';
 
 /**
  * Main init hook.
@@ -241,6 +242,9 @@ function wpcf_embedded_init() {
         require_once WPCF_EMBEDDED_ABSPATH . '/frontend.php';
     }
 
+	/**
+	 * @deprecated Nest for deprecated code. Avoid new usages if possible.
+	 */
     global $wpcf;
 
     /*
@@ -310,9 +314,13 @@ function wpcf_embedded_init() {
     );
     // 'attachment' = Media
     //
-    $wpcf->excluded_post_types = array(
+
+	// IMPORTANT: If you're about update this, please make corresponding changes also
+	// in Toolset_Post_Type_Exclude_List.
+	$wpcf->excluded_post_types = array(
         'cred-form',
         'cred-user-form',
+		'cred_rel_form',
 	    'custom_css',
 	    'customize_changeset',
         'dd_layouts',

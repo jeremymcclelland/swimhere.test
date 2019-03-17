@@ -51,7 +51,7 @@ if ( defined( 'DOING_AJAX' ) ) {
 	        // We don't have functions.php at this point, can't use wpcf_getpost().
 	        $current_page = isset( $_REQUEST['page'] ) ? sanitize_text_field( $_REQUEST['page'] ) : Types_Admin_Edit_Custom_Fields_Group::PAGE_NAME;
 	        if( in_array( $current_page, array( Types_Admin_Edit_Custom_Fields_Group::PAGE_NAME, 'wpcf-edit-usermeta' ) ) ) {
-		        new Types_Admin_Edit_Custom_Fields_Group();
+		        new Types_Admin_Edit_Custom_Fields_Group( true );
 	        }
 
 	        // For other pages, we will initialize during the 'init' hook when the autoloader is already available.
@@ -108,8 +108,8 @@ function wpcf_admin_init_hook()
 function wpcf_init_admin_pages() {
 
 	if( defined( 'DOING_AJAX' ) ) {
-		$action = wpcf_getpost( 'action' );
-		$current_page = wpcf_getpost( 'page' );
+		$action = toolset_getpost( 'action' );
+		$current_page = toolset_getpost( 'page' );
 
 		switch( $action ) {
 
@@ -145,9 +145,9 @@ function wpcf_admin_calculate_menu_page_load_hook( $data ) {
 	$load_hook = '';
 	if ( array_key_exists( 'load_hook', $data ) ) {
 		$load_hook = $data['load_hook'];
-	} else if ( 
-		array_key_exists( 'callback', $data ) 
-		&& is_string( $data['callback' ] ) 
+	} else if (
+		array_key_exists( 'callback', $data )
+		&& is_string( $data['callback' ] )
 	) {
         $load_hook = sprintf( '%s_hook', $data['callback'] );
     }
@@ -156,10 +156,10 @@ function wpcf_admin_calculate_menu_page_load_hook( $data ) {
 
 
 /**
- * Add legacy menu pages. 
- * 
+ * Add legacy menu pages.
+ *
  * This is indirectly hooked to toolset_filter_register_menu_pages through the Types_Admin_Menu controller.
- * 
+ *
  * @param $pages
  * @return mixed
  * @since 2.0
@@ -167,14 +167,14 @@ function wpcf_admin_calculate_menu_page_load_hook( $data ) {
 function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	if( ! apply_filters( 'types_register_pages', true ) )
 		return $pages;
-	
+
 	require_once WPCF_ABSPATH . '/help.php';
-	
+
 	$current_page = '';
 	if ( isset( $_GET['page'] ) ) {
 	    $current_page = sanitize_text_field( $_GET['page'] );
 	}
-	
+
 	$pages['wpcf-cpt'] = array(
 		'slug'				=> 'wpcf-cpt',
         'menu_title'		=> __( 'Post Types', 'wpcf' ),
@@ -187,7 +187,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	$pages['wpcf-cpt']['load_hook'] = wpcf_admin_calculate_menu_page_load_hook( $pages['wpcf-cpt'] );
 	$pages['wpcf-cpt']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-cpt' );
 	$pages['wpcf-cpt']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
-	
+
 	if ( $current_page == 'wpcf-edit-type' ) {
 		$pages['wpcf-edit-type'] = array(
 			'slug'				=> 'wpcf-edit-type',
@@ -202,7 +202,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-edit-type']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-edit-type' );
 		$pages['wpcf-edit-type']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 	if ( $current_page == 'wpcf-view-type' ) {
 		$pages['wpcf-view-type'] = array(
 			'slug'				=> 'wpcf-view-type',
@@ -217,7 +217,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-view-type']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-view-type' );
 		$pages['wpcf-view-type']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 	$pages['wpcf-ctt'] = array(
 		'slug'				=> 'wpcf-ctt',
         'menu_title'		=> __( 'Taxonomies', 'wpcf' ),
@@ -230,7 +230,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	$pages['wpcf-ctt']['load_hook'] = wpcf_admin_calculate_menu_page_load_hook( $pages['wpcf-ctt'] );
 	$pages['wpcf-ctt']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-ctt' );
 	$pages['wpcf-ctt']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
-	
+
 	if ( $current_page == 'wpcf-edit-tax' ) {
 		$pages['wpcf-edit-tax'] = array(
 			'slug'				=> 'wpcf-edit-tax',
@@ -245,7 +245,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-edit-tax']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-edit-tax' );
 		$pages['wpcf-edit-tax']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 	if ( $current_page == 'wpcf-view-tax' ) {
 		$pages['wpcf-view-tax'] = array(
 			'slug'				=> 'wpcf-view-tax',
@@ -260,8 +260,8 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-view-tax']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-view-tax' );
 		$pages['wpcf-view-tax']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
-	
+
+
 	$pages['wpcf-cf'] = array(
 		'slug'				=> 'wpcf-cf',
         'menu_title'		=> __( 'Post Fields', 'wpcf' ),
@@ -274,7 +274,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	$pages['wpcf-cf']['load_hook'] = wpcf_admin_calculate_menu_page_load_hook( $pages['wpcf-cf'] );
 	$pages['wpcf-cf']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-cf' );
 	$pages['wpcf-cf']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
-	
+
 	if ( $current_page == 'wpcf-edit' ) {
 		$pages['wpcf-edit'] = array(
 			'slug'				=> 'wpcf-edit',
@@ -289,7 +289,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-edit']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-edit' );
 		$pages['wpcf-edit']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 	if ( $current_page == 'wpcf-view-custom-field' ) {
 		$pages['wpcf-view-custom-field'] = array(
 			'slug'				=> 'wpcf-view-custom-field',
@@ -306,13 +306,13 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 
 	$WPCF_Page_Listing_Termmeta = WPCF_Page_Listing_Termmeta::get_instance();
 	$pages[WPCF_Page_Listing_Termmeta::PAGE_NAME] = $WPCF_Page_Listing_Termmeta->add_submenu_page();
-	
-	
+
+
 	if ( $current_page == WPCF_Page_Edit_Termmeta::PAGE_NAME ) {
 		$WPCF_Page_Edit_Termmeta = WPCF_Page_Edit_Termmeta::get_instance();
 		$pages[WPCF_Page_Edit_Termmeta::PAGE_NAME] = $WPCF_Page_Edit_Termmeta->add_submenu_page();
 	}
-	
+
     $pages['wpcf-um'] = array(
 		'slug'				=> 'wpcf-um',
         'menu_title'		=> __( 'User Fields', 'wpcf' ),
@@ -325,7 +325,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	$pages['wpcf-um']['load_hook'] = wpcf_admin_calculate_menu_page_load_hook( $pages['wpcf-um'] );
 	$pages['wpcf-um']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-um' );
 	$pages['wpcf-um']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
-	
+
 	if ( $current_page == 'wpcf-edit-usermeta' ) {
 		$pages['wpcf-edit-usermeta'] = array(
 			'slug'				=> 'wpcf-edit-usermeta',
@@ -339,7 +339,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-edit-usermeta']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-edit-usermeta' );
 		$pages['wpcf-edit-usermeta']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 	if ( $current_page == 'wpcf-view-usermeta' ) {
 		$pages['wpcf-view-usermeta'] = array(
 			'slug'				=> 'wpcf-view-usermeta',
@@ -353,7 +353,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 		$pages['wpcf-view-usermeta']['contextual_help_legacy'] = wpcf_admin_help( 'wpcf-view-usermeta' );
 		$pages['wpcf-view-usermeta']['contextual_help_hook'] = 'wpcf_admin_help_add_tabs_load_hook';
 	}
-	
+
 
 	if ( 'installer' == $current_page ) {
 		// @todo Having a page with a slug "installer" is a direct path to a third-party plugin conflict. Just saying. Not to mention the callback funciton "installer_content", for god's sake
@@ -373,7 +373,7 @@ function wpcf_admin_toolset_register_menu_pages( $pages ) {
 	* @todo this is to be deletd IMHO
 	*/
     //do_action( 'wpcf_menu_plus' );
-	
+
 	return $pages;
 }
 
@@ -453,13 +453,13 @@ function wpcf_admin_enqueue_group_edit_page_assets() {
 	wp_enqueue_script(
 		'wpcf-fields-form',
 		WPCF_EMBEDDED_RES_RELPATH.'/js/fields-form.js',
-		array( 'wpcf-js' ),
+		array( 'wpcf-js', Types_Asset_Manager::SCRIPT_UTILS ),
 		WPCF_VERSION
 	);
 	wp_enqueue_script(
 		'wpcf-admin-fields-form',
 		WPCF_RES_RELPATH.'/js/fields-form.js',
-		array(),
+		array( 'types-conditional' ),
 		WPCF_VERSION
 	);
 
@@ -475,6 +475,7 @@ function wpcf_admin_enqueue_group_edit_page_assets() {
 		WPCF_RELPATH . '/resources/js/jquery_ui/jquery.ui.resizable.min.js', array('wpcf-js'));
 
 	wp_enqueue_style( 'wpcf-usermeta', WPCF_EMBEDDED_RES_RELPATH . '/css/usermeta.css' );
+	wp_enqueue_style( 'wpcf-edit-group', WPCF_EMBEDDED_RES_RELPATH . '/css/edit-group.css', array('toolset-dialogs-overrides-css' ));
 
 	wp_enqueue_style( 'font-awesome' );
 
@@ -656,6 +657,8 @@ function wpcf_admin_menu_edit_type()
                 esc_url(add_query_arg( 'page', 'wpcf-edit-type', admin_url('admin.php'))),
                 __('Add New', 'wpcf')
             );
+
+            $title .= '<div id="root"></div>';
         } else {
             $title = __( 'Add New Post Type', 'wpcf' );
         }
@@ -738,11 +741,11 @@ add_action( 'wp_loaded', 'wpcf_admin_export_on_form_submit' );
 function wpcf_admin_export_on_form_submit() {
 	require_once WPCF_INC_ABSPATH . '/fields.php';
     require_once WPCF_INC_ABSPATH . '/import-export.php';
-    if ( 
-		extension_loaded( 'simplexml' ) 
+    if (
+		extension_loaded( 'simplexml' )
 		&& isset( $_POST['types_export'] )
 		&& isset( $_POST['types_export_wpnonce'] )
-        && wp_verify_nonce( $_POST['types_export_wpnonce'], 'wpcf_export' ) 
+        && wp_verify_nonce( $_POST['types_export_wpnonce'], 'wpcf_export' )
 	) {
         wpcf_admin_export_data();
         die();
@@ -756,10 +759,10 @@ function wpcf_admin_import_on_form_submit() {
     require_once WPCF_INC_ABSPATH . '/import-export.php';
 	global $wpcf_import_messages;
 	$wpcf_import_messages = array();
-    if ( 
-		extension_loaded( 'simplexml' ) 
+    if (
+		extension_loaded( 'simplexml' )
 		&& isset( $_POST['types-import-final'] )
-		&& isset( $_POST['types_import_wpnonce'] ) 
+		&& isset( $_POST['types_import_wpnonce'] )
 		&& wp_verify_nonce( $_POST['types_import_wpnonce'], 'wpcf_import' )
 	) {
         $wpcf_import_messages = wpcf_admin_import_final_data();
@@ -805,7 +808,7 @@ function wpcf_admin_import_admin_notices() {
 			</div>
 		<?php
 		}
-		
+
 	}
 }
 
@@ -855,9 +858,9 @@ function wpcf_render_import_form() {
     require_once WPCF_INC_ABSPATH . '/import-export.php';
 	echo '<form method="post" action="' . admin_url('admin.php') . '?page=toolset-export-import&tab=types" class="wpcf-import-export-form '
     . 'wpcf-form-validate" enctype="multipart/form-data">';
-	if ( 
-		isset( $_POST['types_import_wpnonce'] ) 
-		&& wp_verify_nonce( $_POST['types_import_wpnonce'], 'wpcf_import' ) 
+	if (
+		isset( $_POST['types_import_wpnonce'] )
+		&& wp_verify_nonce( $_POST['types_import_wpnonce'], 'wpcf_import' )
 		&& isset( $_POST['types-import-step'] )
 	) {
 		echo wpcf_admin_import_confirmation_form();
@@ -905,6 +908,16 @@ function wpcf_admin_settings_for_images( $sections ) {
         '#default_value' => !empty($settings['images_remote']),
         '#pattern' => '<ELEMENT><LABEL><DESCRIPTION>',
     );
+	$form['images_always_apply_media_library_modifications'] = array(
+		'#id' => 'images_always_apply_media_library_modifications',
+		'#name' => 'wpcf_images_always_apply_media_library_modifications',
+		'#type' => 'checkbox',
+		'#label' => __('Always apply image modifications done using Media Library', 'wpcf'),
+		'#description' => __('By default, the image shortcode [types field="image" size="full"] will display the URL of the field, without determining the underlying attachment object. This provides the best performance when using image fields. The downside of this is that image modifications done using Media Library are not used. Activate this option to always check for image modifications (performance will not be optimal)', 'wpcf'),
+		'#inline' => true,
+		'#default_value' => !empty($settings['images_always_apply_media_library_modifications']),
+		'#pattern' => '<ELEMENT><LABEL><DESCRIPTION>',
+	);
     $form['images_remote_clear'] = array(
 		'#title' => '<h3>' . __('Images caching', 'wpcf') . '</h3>',
         '#id' => 'images_remote_cache_time',
@@ -940,7 +953,7 @@ function wpcf_admin_settings_for_images( $sections ) {
         '#pattern' => ' <ELEMENT></div>',
     );
 	$section_content = wpcf_form_simple( $form );
-		
+
 	$sections['wpcf-images-settings'] = array(
 		'slug'		=> 'wpcf-image-settings',
 		'title'		=> __( 'Images', 'wpcf' ),
@@ -959,9 +972,9 @@ function wpcf_settings_clear_cache_images() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1007,9 +1020,9 @@ function wpcf_settings_save_image_settings() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1018,10 +1031,11 @@ function wpcf_settings_save_image_settings() {
 		wp_send_json_error( $data );
 	}
 	$settings = wpcf_get_settings();
-	$keys_to_check = array( 
-		'add_resized_images_to_library'	=> 'esc_html', 
-		'images_remote'					=> 'intval', 
-		'images_remote_cache_time'		=> 'intval' 
+	$keys_to_check = array(
+		'add_resized_images_to_library'                   => 'esc_html',
+		'images_remote'                                   => 'intval',
+		'images_remote_cache_time'                        => 'intval',
+		'images_always_apply_media_library_modifications' => 'intval',
 	);
 	$posted_settings = isset( $_POST['settings'] ) ? wp_parse_args( $_POST['settings'] ) : array();
 	foreach ( $keys_to_check as $key => $validation ) {
@@ -1051,7 +1065,7 @@ function wpcf_admin_settings_for_help_box( $sections ) {
 			),
 			'by_types' => array(
 				'#value' => 'by_types',
-				'#title' => __("Show the help box only on post types that were created by Types and on all Types create/edit pages", 'wpcf')
+				'#title' => __("Show the help box only on post types that were created by Types", 'wpcf')
 			),
 			'no' => array(
 				'#value' => 'no',
@@ -1063,7 +1077,7 @@ function wpcf_admin_settings_for_help_box( $sections ) {
 		'#pattern' => '<ELEMENT><DESCRIPTION>',
 	);
 	$section_content = wpcf_form_simple( $form );
-		
+
 	$sections['wpcf-help-box-settings'] = array(
 		'slug'		=> 'wpcf-help-box-settings',
 		'title'		=> __( 'Help box', 'wpcf' ),
@@ -1082,9 +1096,9 @@ function wpcf_settings_save_help_box_settings() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1093,7 +1107,7 @@ function wpcf_settings_save_help_box_settings() {
 		wp_send_json_error( $data );
 	}
 	$settings = wpcf_get_settings();
-	$keys_to_check = array( 
+	$keys_to_check = array(
 		'help_box'	=> 'esc_html'
 	);
 	$posted_settings = isset( $_POST['settings'] ) ? wp_parse_args( $_POST['settings'] ) : array();
@@ -1132,7 +1146,7 @@ function wpcf_admin_settings_for_custom_field_metabox( $sections ) {
 		'#pattern' => '<ELEMENT><DESCRIPTION>',
 	);
 	$section_content = wpcf_form_simple( $form );
-		
+
 	$sections['wpcf-custom-field-metabox-settings'] = array(
 		'slug'		=> 'wpcf-custom-field-metabox-settings',
 		'title'		=> __( 'Custom field metabox', 'wpcf' ),
@@ -1151,9 +1165,9 @@ function wpcf_settings_save_custom_field_metabox_settings() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1181,7 +1195,7 @@ function wpcf_admin_settings_for_unfiltered_html( $sections ) {
         '#id' => 'postmeta_unfiltered_html',
         '#name' => 'wpcf_postmeta_unfiltered_html',
         '#type' => 'radios',
-        '#title' => __('Custom fields - unfiltered HTML', 'wpcf'),
+        '#title' => '<h3>' . __('Custom fields - unfiltered HTML', 'wpcf') . '</h3>',
         '#options' => array(
             'on' => array(
                 '#value' => 'on',
@@ -1200,7 +1214,7 @@ function wpcf_admin_settings_for_unfiltered_html( $sections ) {
         '#id' => 'usermeta_unfiltered_html',
         '#name' => 'wpcf_usermeta_unfiltered_html',
         '#type' => 'radios',
-        '#title' => __('Usermeta fields - unfiltered HTML', 'wpcf'),
+        '#title' => '<h3>' . __('Usermeta fields - unfiltered HTML', 'wpcf') . '</h3>',
         '#options' => array(
             'on' => array(
                 '#value' => 'on',
@@ -1216,7 +1230,7 @@ function wpcf_admin_settings_for_unfiltered_html( $sections ) {
         '#pattern' => '<TITLE><ELEMENT><DESCRIPTION>',
     );
 	$section_content = wpcf_form_simple( $form );
-		
+
 	$sections['wpcf-unfiltered-html-settings'] = array(
 		'slug'		=> 'wpcf-unfiltered-html-settings',
 		'title'		=> __( 'Saving unfiltered HTML for users with higher roles', 'wpcf' ),
@@ -1235,9 +1249,9 @@ function wpcf_settings_save_unfiltered_html_settings() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1246,7 +1260,7 @@ function wpcf_settings_save_unfiltered_html_settings() {
 		wp_send_json_error( $data );
 	}
 	$settings = wpcf_get_settings();
-	$keys_to_check = array( 
+	$keys_to_check = array(
 		'postmeta_unfiltered_html',
 		'usermeta_unfiltered_html'
 	);
@@ -1294,9 +1308,9 @@ function wpcf_wpml_translation_options( $sections ) {
             '#default_value' => !empty($settings['register_translations_on_import']),
             '#pattern' => '<p><ELEMENT><LABEL><DESCRIPTION></p>',
         );
-		
+
 		$section_content = wpcf_form_simple( $form );
-			
+
 		$sections['wpml-wpcf'] = array(
 			'slug'		=> 'wpml-wpcf',
 			'title'		=> __( 'Types and WPML integration', 'wpcf' ),
@@ -1316,9 +1330,9 @@ function wpcf_settings_save_wpml_settings() {
 		);
 		wp_send_json_error( $data );
 	}
-	if ( 
+	if (
 		! isset( $_POST["wpnonce"] )
-		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' ) 
+		|| ! wp_verify_nonce( $_POST["wpnonce"], 'wpcf_settings_nonce' )
 	) {
 		$data = array(
 			'type' => 'nonce',
@@ -1327,7 +1341,7 @@ function wpcf_settings_save_wpml_settings() {
 		wp_send_json_error( $data );
 	}
 	$settings = wpcf_get_settings();
-	$keys_to_check = array( 
+	$keys_to_check = array(
 		'register_translations_on_import' => 'esc_html',
 	);
 	$posted_settings = isset( $_POST['settings'] ) ? wp_parse_args( $_POST['settings'] ) : array();
@@ -1755,11 +1769,6 @@ function wpcf_usort_reorder($a,$b)
     return ($order==='asc') ? $result : -$result; //Send final sort direction to usort
 }
 
-add_filter('set-screen-option', 'wpcf_table_set_option', 10, 3);
-function wpcf_table_set_option($status, $option, $value)
-{
-      return $value;
-}
 
 function wpcf_admin_screen( $post_type, $form_output = '')
 {

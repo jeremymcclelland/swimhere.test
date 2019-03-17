@@ -1,7 +1,7 @@
 <?php
 
 if ( defined( 'WPT_ASSETS_MANAGER' ) ) {
-    return; 
+    return;
 }
 
 define( 'WPT_ASSETS_MANAGER', true );
@@ -158,8 +158,10 @@ class Toolset_Assets_Manager {
 	const SCRIPT_CODEMIRROR = 'toolset-codemirror-script';
 	const SCRIPT_CODEMIRROR_CSS = 'toolset-meta-html-codemirror-css-script';
 	const SCRIPT_CODEMIRROR_XML = 'toolset-meta-html-codemirror-xml-script';
+	const SCRIPT_CODEMIRROR_PHP = 'toolset-meta-html-codemirror-php-script';
 	const SCRIPT_CODEMIRROR_HTMLMIXED = 'toolset-meta-html-codemirror-htmlmixed-script';
 	const SCRIPT_CODEMIRROR_JS = 'toolset-meta-html-codemirror-js-script';
+	const SCRIPT_CODEMIRROR_C_LIKE = 'toolset-meta-html-codemirror-c-like';
 	const SCRIPT_CODEMIRROR_OVERLAY = 'toolset-meta-html-codemirror-overlay-script';
 	const SCRIPT_CODEMIRROR_UTILS_SEARCH = 'toolset-meta-html-codemirror-utils-search';
 	const SCRIPT_CODEMIRROR_UTILS_SEARCH_CURSOR = 'toolset-meta-html-codemirror-utils-search-cursor';
@@ -172,8 +174,11 @@ class Toolset_Assets_Manager {
 
 	const SCRIPT_ICL_EDITOR = 'icl_editor-script';
 	const SCRIPT_ICL_MEDIA_MANAGER = 'icl_media-manager-js';
-	
+
 	const SCRIPT_TOOLSET_MEDIA_MANAGER = 'toolset-media-manager-js';
+
+	const SCRIPT_TOOLSET_MEDIA_FIELD_PROTOTYPE = 'toolset-media-field-prototype';
+	const SCRIPT_TOOLSET_MEDIA_FIELD_PROTOTYPE_I18N = 'toolset_media_field_i18n';
 
 	const SCRIPT_KNOCKOUT = 'knockout';
 	const SCRIPT_KNOCKOUT_MAPPING = 'knockout-mapping';
@@ -181,6 +186,7 @@ class Toolset_Assets_Manager {
 	const SCRIPT_JSTORAGE = 'jstorage';
 	const SCRIPT_MOUSEWHEEL = 'toolset-mousewheel';
 	const SCRIPT_SELECT2 = 'toolset_select2';
+	const SCRIPT_SELECT2_I18N = 'toolset_select2_i18n';
 	const SCRIPT_SELECT2_COMPATIBILITY = 'toolset-select2-compatibility';
 
 	const SCRIPT_TOOLSET_EVENT_MANAGER = 'toolset-event-manager';
@@ -198,13 +204,19 @@ class Toolset_Assets_Manager {
 	// parsley lib for field validation
 	const SCRIPT_PARSLEY = 'toolset-parsley';
 
+	// React
+	const SCRIPT_REACT = 'react';
+	const SCRIPT_REACT_DOM = 'react-dom';
+
+	// Lodash
+	const SCRIPT_LODASH = 'lodash';
 
 	/**
 	 * For compatibility with ACF Plugin that's not using the right handle for this module (wp-event-manager)
 	 * we are using ACF handle to prevent unwanted overrides of window.wp.hooks namespace (******!)
 	 */
 	const SCRIPT_WP_EVENT_MANAGER = 'acf-input';
-	
+
 	const SCRIPT_TOOLSET_SHORTCODE = 'toolset-shortcode';
 
 	// Styles
@@ -252,16 +264,20 @@ class Toolset_Assets_Manager {
 
 	const STYLE_ONTHEGOSYSTEMS_ICONS = 'onthegosystems-icons';
 
+	const SCRIPT_TIPPY = 'tippy';
+	const STYLE_TIPPY_CSS = 'tippy-css';
+
 
 	/**
-	 * assets_url
-	 *
 	 * Base URL for the Toolset Common instance.
 	 *
 	 * @note Does not have a trailing slash due to untrailingslashit, add it when registering each asset.
 	 * @since 2.0
 	 */
 	protected $assets_url = '';
+
+	private $did_initialize_scripts = false;
+	private $did_initialize_styles = false;
 
 
 	protected function __construct() {
@@ -289,22 +305,22 @@ class Toolset_Assets_Manager {
 		add_action( 'toolset_localize_script', array( $this, 'localize_script' ), 10, 3 );
 	}
 
+	private static $instances = array();
 
 	/**
 	 * @return Toolset_Assets_Manager
 	 * @deprecated Use get_instance instead().
 	 */
 	final public static function getInstance() {
-		static $instances = array();
 		$called_class = get_called_class();
 
-		if ( isset( $instances[ $called_class ] ) ) {
-			return $instances[ $called_class ];
+		if ( isset( self::$instances[ $called_class ] ) ) {
+			return self::$instances[ $called_class ];
 		} else {
 			if ( class_exists( $called_class ) ) {
-				$instances[ $called_class ] = new $called_class();
+				self::$instances[ $called_class ] = new $called_class();
 
-				return $instances[ $called_class ];
+				return self::$instances[ $called_class ];
 			} else {
 				// This can unfortunately happen when the get_called_class() workaround for PHP 5.2 misbehaves.
 				return false;
@@ -320,17 +336,44 @@ class Toolset_Assets_Manager {
 	 */
 	public static function get_instance() {
 		if( null === self::$instance ) {
-			self::$instance = new self();
+			$called_class = get_called_class();
+			if( $called_class === 'Toolset_Assets_Manager' && isset( self::$instances[ $called_class ] ) ) {
+				// Make sure that we don't re-instantiate the Toolset_Assets_Manager class even if it was instantiated
+				// before through the legacy getInstance() method.
+				//
+				// @refactoring Stop subclassing Toolset_Assets_Manager
+				self::$instance = self::$instances[ $called_class ];
+			} else {
+				self::$instance = new self();
+			}
 		}
 
 		return self::$instance;
 	}
 
+	/**
+	 * Backward compatibility
+	 * For PHP 7 we renamed the method __initialize_styles() and __initialize_scripts() to initialize_styles() and initialize_scripts().
+	 * As both are public methods we apply this fallback for the case someone calls the old methods.
+	 *
+	 * @param $method
+	 * @param $arguments
+	 */
+	public function __call( $method, $arguments ) {
+		switch( $method ) {
+			case '__initialize_styles':
+				$this->initialize_styles();
+				break;
+			case '__initialize_scripts':
+				$this->initialize_scripts();
+				break;
+		}
+	}
 
 
 	public function init() {
-		$this->__initialize_styles();
-		$this->__initialize_scripts();
+		$this->initialize_styles();
+		$this->initialize_scripts();
 	}
 
 
@@ -368,8 +411,27 @@ class Toolset_Assets_Manager {
 		}
 	}
 
+	protected function initialize_styles() {
 
-	protected function __initialize_styles() {
+		// Prevent an infinite recursion in case we have a subclass of this that has:
+		//
+		// function __initialize_styles() {
+		//     // ...
+		//     return parent::__initialize_styles();
+		// }
+		if( $this->did_initialize_styles ) {
+			return null;
+		}
+		$this->did_initialize_styles = true;
+
+		if( method_exists( $this, '__initialize_styles' ) ) {
+			// Support for subclasses overwriting the previous __initialize_styles function.
+			//
+			// This will cause the common assets never to be registered in these subclasses,
+			// but we don't mind - these assets are already registered by Toolset_Assets_Manager
+			// on every request.
+			return $this->__initialize_styles();
+		}
 
 		// Libraries
 		//
@@ -523,11 +585,38 @@ class Toolset_Assets_Manager {
 			TOOLSET_COMMON_VERSION
 		);
 
+		$this->register_style(
+			self::STYLE_TIPPY_CSS,
+			$this->assets_url . '/res/lib/tippy/tippy.css',
+			array(),
+			'3.0.6'
+		);
+
 		return apply_filters( 'toolset_add_registered_styles', $this->styles );
 	}
 
 
-	protected function __initialize_scripts() {
+	protected function initialize_scripts() {
+
+		// Prevent an infinite recursion in case we have a subclass of this that has:
+		//
+		// function __initialize_scripts() {
+		//     // ...
+		//     return parent::__initialize_scripts();
+		// }
+		if( $this->did_initialize_scripts ) {
+			return null;
+		}
+		$this->did_initialize_scripts = true;
+
+		if( method_exists( $this, '__initialize_scripts' ) ) {
+			// Support for subclasses overwriting the previous __initialize_scripts function.
+			//
+			// This will cause the common assets never to be registered in these subclasses,
+			// but we don't mind - these assets are already registered by Toolset_Assets_Manager
+			// on every request.
+			return $this->__initialize_scripts();
+		}
 
 		// Libraries
 		//
@@ -561,8 +650,33 @@ class Toolset_Assets_Manager {
 			self::SCRIPT_SELECT2,
 			$this->assets_url . "/res/lib/select2/select2.js",
 			array( 'jquery', self::SCRIPT_SELECT2_COMPATIBILITY ),
-			'4.0.3',
+			'4.0.3-i18n',
 			true
+		);
+
+		$this->localize_script(
+			self::SCRIPT_SELECT2,
+			self::SCRIPT_SELECT2_I18N,
+			array(
+				/* translators: select2 helper text: when the search results could not be loaded */
+				'errorLoading' => __( 'The results could not be loaded', 'wpv-views' ),
+				/* translators: select2 helper text: when your search term has 1 character over the allowed limit */
+				'inputTooLongSingular' => __( 'Please delete %NUM% character', 'wpv-views' ),
+				/* translators: select2 helper text: when your search term has %NUM% characters over the allowed limit */
+				'inputTooLongPlural' => __( 'Please delete %NUM% characters', 'wpv-views' ),
+				/* translators: select2 helper text: when your search term is %NUM% short under the minimum allowed limit */
+				'inputTooShort' => __( 'Please enter %NUM% or more characters', 'wpv-views' ),
+				/* translators: select2 helper text: when loading more results */
+				'loadingMore' => __( 'Loading more results...', 'wpv-views' ),
+				/* translators: select2 helper text: when you can only select 1 item */
+				'maximumSelectedSingular' => __( 'You can only select %NUM% item', 'wpv-views' ),
+				/* translators: select2 helper text: when you can only select up to %NUM% items */
+				'maximumSelectedPlural' => __( 'You can only select %NUM% items', 'wpv-views' ),
+				/* translators: select2 helper text: when no results were found */
+				'noResults' => __( 'No results found', 'wpv-views' ),
+				/* translators: select2 helper text: while searching */
+				'searching' => __( 'Searching...', 'wpv-views' ),
+			)
 		);
 
 		$this->register_script(
@@ -658,6 +772,29 @@ class Toolset_Assets_Manager {
 		);
 
 		$this->register_script(
+			self::SCRIPT_CODEMIRROR_C_LIKE,
+			$this->assets_url . '/visual-editor/res/js/codemirror/mode/clike/clike.js',
+			array( self::SCRIPT_CODEMIRROR_OVERLAY ),
+			"5.5.0"
+		);
+
+		$this->register_script(
+			self::SCRIPT_CODEMIRROR_PHP,
+			$this->assets_url . '/visual-editor/res/js/codemirror/mode/php/php.js',
+			array(
+				self::SCRIPT_CODEMIRROR_OVERLAY,
+				self::SCRIPT_CODEMIRROR_XML,
+				self::SCRIPT_CODEMIRROR_JS,
+				self::SCRIPT_CODEMIRROR_CSS,
+				self::SCRIPT_CODEMIRROR_HTMLMIXED,
+				self::SCRIPT_CODEMIRROR_C_LIKE,
+			),
+			"5.5.0"
+		);
+
+
+
+		$this->register_script(
 			self::SCRIPT_CODEMIRROR_CSS,
 			$this->assets_url . '/visual-editor/res/js/codemirror/mode/css/css.js',
 			array( self::SCRIPT_CODEMIRROR_OVERLAY ),
@@ -738,12 +875,34 @@ class Toolset_Assets_Manager {
 			array( self::SCRIPT_ICL_EDITOR ),
 			TOOLSET_COMMON_VERSION
 		);
-		
+
 		$this->register_script(
 			self::SCRIPT_TOOLSET_MEDIA_MANAGER,
 			$this->assets_url . "/res/js/toolset-media-manager.js",
 			array( self::SCRIPT_ICL_EDITOR, self::SCRIPT_TOOLSET_EVENT_MANAGER ),
 			TOOLSET_COMMON_VERSION
+		);
+
+		$this->register_script(
+			self::SCRIPT_TOOLSET_MEDIA_FIELD_PROTOTYPE,
+			$this->assets_url . '/res/js/toolset-media-field.prototype.js',
+			array(
+				'jquery',
+				'underscore',
+			),
+			TOOLSET_COMMON_VERSION
+		);
+
+		$this->localize_script(
+			self::SCRIPT_TOOLSET_MEDIA_FIELD_PROTOTYPE,
+			self::SCRIPT_TOOLSET_MEDIA_FIELD_PROTOTYPE_I18N,
+			array(
+				'dialog' => array(
+					'title' => __( 'Select a file for this field', 'wpv-views' ),
+					'button' => __( 'Use this as field value', 'wpv-views' ),
+					'nonce' => wp_create_nonce( 'toolset_media_field_' . get_current_user_id() ),
+				),
+			)
 		);
 
 		$this->register_script(
@@ -794,6 +953,41 @@ class Toolset_Assets_Manager {
 			true
 		);
 
+		$this->register_script(
+			self::SCRIPT_TIPPY,
+			$this->assets_url . '/res/lib/tippy/tippy.min.js',
+			array(),
+			'3.0.6'
+		);
+
+		if ( ! wp_script_is( self::SCRIPT_REACT, 'registered' ) ) {
+			$this->register_script(
+				self::SCRIPT_REACT,
+				$this->assets_url . '/res/lib/react/' . $this->choose_script_version( 'react.production.min.js', 'react.development.js' ),
+				array(),
+				'16.6.3'
+			);
+		}
+
+		if ( ! wp_script_is( self::SCRIPT_REACT_DOM, 'registered' ) ) {
+			$this->register_script(
+				self::SCRIPT_REACT_DOM,
+				$this->assets_url . '/res/lib/react/' . $this->choose_script_version( 'react-dom.production.min.js', 'react-dom.development.js' ),
+				array( self::SCRIPT_REACT ),
+				'16.6.3'
+			);
+		}
+
+		if ( ! wp_script_is( self::SCRIPT_LODASH, 'registered' ) ) {
+			$this->register_script(
+				self::SCRIPT_LODASH,
+				$this->assets_url . '/res/lib/lodash/lodash.min.js',
+				array(),
+				'4.17.11'
+			);
+			wp_add_inline_script( self::SCRIPT_LODASH, 'window.lodash = _.noConflict();' );
+		}
+
 		$this->localize_script(
 			self::SCRIPT_UTILS,
 			'toolset_utils_texts',
@@ -835,17 +1029,18 @@ class Toolset_Assets_Manager {
 				'toolset_theme_loads_own_bs' => __( 'This theme loads its own version of Bootstrap. You should select this option to avoid loading Bootstrap twice and causing display problems on the site\'s front-end', 'wpv-views' )
 			)
 		);
-		
+
 		$this->register_script(
 			self::SCRIPT_TOOLSET_SHORTCODE,
 			$this->assets_url . "/res/js/toolset-shortcode.js",
-			array( 
-				'jquery', 'jquery-ui-dialog', 'jquery-ui-tabs', 'suggest', 'shortcode', 'underscore', 'wp-util', 
-				self::SCRIPT_SELECT2, self::SCRIPT_ICL_EDITOR, self::SCRIPT_UTILS, self::SCRIPT_TOOLSET_EVENT_MANAGER ),
+			array(
+				'jquery', 'jquery-ui-dialog', 'jquery-ui-tabs', 'suggest', 'shortcode', 'underscore', 'wp-util', 'wp-pointer',
+				self::SCRIPT_SELECT2, self::SCRIPT_ICL_EDITOR, self::SCRIPT_UTILS, self::SCRIPT_TOOLSET_EVENT_MANAGER
+			),
 			TOOLSET_COMMON_VERSION,
 			true
 		);
-		
+
 		global $pagenow;
 		$toolset_shortcode_i18n = array(
 			'action' => array(
@@ -866,14 +1061,15 @@ class Toolset_Assets_Manager {
 				'number'     => __( 'Please enter a valid number', 'wpv-views' ),
 				'numberlist' => __( 'Please enter a valid comma separated number list', 'wpv-views' ),
 				'url'        => __( 'Please enter a valid URL', 'wpv-views' ),
-				
+
 			),
+			'integrated_inputs' => array(),
 			'ajaxurl' => admin_url( 'admin-ajax.php', ( is_ssl() ? 'https' : 'http' )  ),
 			'pagenow' => $pagenow
 		);
-		
+
 		$toolset_shortcode_i18n = apply_filters( 'toolset_filter_shortcode_script_i18n', $toolset_shortcode_i18n );
-		
+
 		$this->localize_script(
 			self::SCRIPT_TOOLSET_SHORTCODE,
 			'toolset_shortcode_i18n',
@@ -1006,5 +1202,4 @@ class Toolset_Assets_Manager {
 	private function choose_script_version( $production_version, $debugging_version ) {
 		return ( $this->is_script_debug_mode_on() ? $debugging_version : $production_version );
 	}
-
 }

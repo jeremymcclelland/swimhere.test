@@ -20,12 +20,18 @@ class Types_Ajax extends Toolset_Ajax {
 	const CALLBACK_SETTINGS_ACTION = 'settings_action';
 	const CALLBACK_M2M_MIGRATION_PREVIEW_RELATIONSHIPS = 'm2m_migration_preview_relationships';
 	const CALLBACK_M2M_MIGRATION_PREVIEW_ASSOCIATIONS = 'm2m_migration_preview_associations';
+	const CALLBACK_M2M_SCAN_LEGACY_CUSTOM_CODE = 'm2m_scan_legacy_custom_code';
 	const CALLBACK_CUSTOM_FIELDS_ACTION = 'custom_fields_action';
 	const CALLBACK_RELATIONSHIPS_ACTION = 'relationships_action';
+	const CALLBACK_DELETE_INTERMEDIARY_POST_TYPE_ACTION = 'delete_intermediary_post_type';
 	const CALLBACK_RELATED_CONTENT_ACTION = 'related_content_action';
 	const CALLBACK_FIELD_GROUP_EDIT_ACTION = 'field_group_edit_action';
 	const CALLBACK_REPEATABLE_GROUP = 'repeatable_group';
 	const CALLBACK_POST_REFERENCE_FIELD = 'post_reference_field';
+	const CALLBACK_INTERMEDIARY_PARENT_CHILD = 'intermediary_parent_child';
+	const CALLBACK_ASSOCIATIONS_IMPORT = 'associations_import';
+	const CALLBACK_MERGE_RELATIONSHIPS = 'merge_relationships';
+	const CALLBACK_SET_EDITOR_MODE = 'set_editor_mode';
 
 
 	private static $callbacks = array(
@@ -40,6 +46,12 @@ class Types_Ajax extends Toolset_Ajax {
 		self::CALLBACK_FIELD_GROUP_EDIT_ACTION,
 		self::CALLBACK_REPEATABLE_GROUP,
 		self::CALLBACK_POST_REFERENCE_FIELD,
+		self::CALLBACK_M2M_SCAN_LEGACY_CUSTOM_CODE,
+		self::CALLBACK_DELETE_INTERMEDIARY_POST_TYPE_ACTION,
+		self::CALLBACK_INTERMEDIARY_PARENT_CHILD,
+		self::CALLBACK_ASSOCIATIONS_IMPORT,
+		self::CALLBACK_MERGE_RELATIONSHIPS,
+		self::CALLBACK_SET_EDITOR_MODE,
 	);
 
 

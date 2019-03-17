@@ -81,12 +81,13 @@ class Enlimbo_Forms {
 		 */
 		$this->form_settings = array(
 			'has_media_button' => true,
+			'has_toolset_buttons' => true,
 			'use_bootstrap' => false,
 		);
 		$this->_id = $id;
 		if ( ! Toolset_Utils::is_real_admin() ) {
-			// TODO check also doing_ajax as this gives false positives
 			$cred_form_id = preg_replace( '/^cred_form_(\d+)_\d+$/', "$1", $this->_id );
+			$cred_form_id = preg_replace( '/^cred_user_form_(\d+)_\d+$/', "$1", $cred_form_id );
 			$form_settings = get_post_meta( $cred_form_id, '_cred_form_settings', true );
 			if ( isset( $form_settings->form ) ) {
 				$this->form_settings = $form_settings->form;
@@ -417,10 +418,11 @@ class Enlimbo_Forms {
 			 */
 			if ( Toolset_Utils::is_real_admin() && function_exists( 'wpcf_wpml_field_is_copied' ) && wpcf_wpml_field_is_copied( $element ) ) {
 				$element['#title'] .= sprintf(
-					'<img src="%s/images/locked.png" alt="%s" title="%s" style="position:relative;left:2px;top:2px;" />', WPCF_EMBEDDED_RES_RELPATH, __( 'This field is locked for editing because WPML will copy its value from the original language.', 'wpcf' ), __( 'This field is locked for editing because WPML will copy its value from the original language.', 'wpcf' )
+					'<img src="%s/images/locked.png" alt="%s" title="%s" style="position:relative;left:2px;top:2px;" />', WPCF_EMBEDDED_RES_RELPATH, __( 'This field is locked for editing because WPML will copy its value from the original language.', 'wpv-views' ), __( 'This field is locked for editing because WPML will copy its value from the original language.', 'wpv-views' )
 				);
 				$element['#attributes']['readonly'] = true;
 				$element['#attributes']['disabled'] = true;
+				$element['#attributes']['data-submitanyway'] = true;
 			}
 
 			return $this->{$method}( $element );
@@ -459,24 +461,22 @@ class Enlimbo_Forms {
 		}
 
 		switch( $what_to_validate ){
-			case 'required';
-				$element['#attributes']['required'] = 'true';
-				$element['#attributes']['data-parsley-required-message'] = $element['#validate'][ $what_to_validate ]['message'];
-				break;
 
 			case 'number':
 				$element['#attributes']['data-parsley-type'] = 'number';
-				$element['#attributes']['data-parsley-number-message'] = $element['#validate'][ $what_to_validate ]['message'];
+				$element['#attributes']['data-parsley-error-message'] = $element['#validate'][ $what_to_validate ]['message'];
 				break;
-
 			case 'url':
 				$element['#attributes']['data-parsley-type'] = 'url';
-				$element['#attributes']['data-parsley-url-message'] = $element['#validate'][ $what_to_validate ]['message'];
+				$element['#attributes']['data-parsley-error-message'] = $element['#validate'][ $what_to_validate ]['message'];
 				break;
-
 			case 'email':
 				$element['#attributes']['data-parsley-type'] = 'email';
-				$element['#attributes']['data-parsley-email-message'] = $element['#validate'][ $what_to_validate ]['message'];
+				$element['#attributes']['data-parsley-error-message'] = $element['#validate'][ $what_to_validate ]['message'];
+				break;
+			case 'required';
+				$element['#attributes']['data-parsley-required'] = 'true';
+				$element['#attributes']['data-parsley-required-message'] = $element['#validate'][ $what_to_validate ]['message'];
 				break;
 		}
 
@@ -498,7 +498,7 @@ class Enlimbo_Forms {
 		$classes = array();
 		$classes[] = $this->css_class . '-' . $element['#type'];
 		$classes[] = 'form-' . $element['#type'];
-		
+
 		if ($this->form_settings['use_bootstrap']) {
 			switch ($element['#type']) {
 				case 'hidden':
@@ -531,6 +531,17 @@ class Enlimbo_Forms {
 				'class' => implode( ' ', $classes ),
 			);
 		}
+
+		// When we're disabling a form element, make sure we also submit it.
+		// See https://onthegosystems.myjetbrains.com/youtrack/issue/types-1784#focus=streamItem-102-308144-0-0
+		// for a lengthy explanation of why it is needed.
+		if(
+			toolset_getnest( $element, array( '#attributes', 'disabled' ), false )
+			|| toolset_getarr( $element, '#disabled', false )
+		) {
+			$element['#attributes']['data-submitanyway'] = '1';
+		}
+
 
 		foreach ( $element['#attributes'] as $attribute => $value ) {
 			// Prevent undesired elements
@@ -824,7 +835,9 @@ class Enlimbo_Forms {
 		 * START Todo: Types should deliver the correct values instead of flipping it here
 		 */
 		$is_types_field = (
-			( strpos( $element['#name'], 'wpcf[' ) === 0 ) || ( strpos( $element['#name'], 'wpcf_post_relationship[' ) === 0 )
+			( strpos( $element['#name'], 'wpcf[' ) === 0 )
+			|| ( strpos( $element['#name'], 'wpcf_post_relationship[' ) === 0 )
+			|| ( strpos( $element['#name'], 'types-repeatable-group[' ) === 0 )
 		);
 
 		if ( $is_types_field ) {
@@ -855,7 +868,8 @@ class Enlimbo_Forms {
 		$is_boolean = is_bool( $element['#value'] );
 		$use_default_value = ( ( $is_empty && $is_zero ) || $is_boolean );
 		$value_output = ( $use_default_value ? $value : esc_attr( $element['#value'] ) );
-		$element['_render']['element'] .= $value_output;
+		// we need to convert special characters of the input attr "value" (types-1643)
+		$element['_render']['element'] .= htmlspecialchars( $value_output );
 
 		$element['_render']['element'] .= '"' . $element['_attributes_string'];
 		if (
@@ -930,7 +944,21 @@ class Enlimbo_Forms {
 		$element['_render']['element'] .= isset( $element['#value'] ) ? htmlspecialchars( $element['#value'] ) : $this->_count['radio'];
 		$element['_render']['element'] .= '"';
 		$element['_render']['element'] .= $element['_attributes_string'];
-		$element['_render']['element'] .= ( isset( $element['#value'] ) && $element['#value'] === $element['#default_value'] ) ? ' checked="checked"' : '';
+
+		// maybe apply ' checked="checked"
+		if( isset( $element['#value'] ) ) {
+			// if a user has "option value " the whitespace is not trimmed,
+			// but when the user selects that option the stored value is trimmed, which ends a
+			// "option value " == "option value" check and a "not selected" select field.
+			// -> making sure that both values have no unnecessary whitespaces
+			$option_value = trim( $element['#value'] );
+			$stored_value = trim( $element['#default_value'] );
+
+			if( $stored_value == $option_value ) {
+				$element['_render']['element'] .= ' checked="checked"';
+			}
+		}
+
 		if ( isset( $element['#disable'] ) && $element['#disable'] ) {
 			$element['_render']['element'] .= ' disabled="disabled"';
 		}
@@ -979,10 +1007,16 @@ class Enlimbo_Forms {
 			$value['#name'] = $element['#name'];
 			$value['#default_value'] = isset( $element['#default_value'] ) ? $element['#default_value'] : $value['#value'];
 			$value['#disable'] = isset( $element['#disable'] ) ? $element['#disable'] : false;
-			if (
-				isset( $element['#attributes']['disabled'] ) && $element['#attributes']['disabled']
-			) {
+			if ( isset( $element['#attributes']['disabled'] ) && $element['#attributes']['disabled'] ) {
 				$value['#disable'] = true;
+			}
+			// Pass the data-submitanyway attribute from the element to individual options.
+			//
+			// When we're disabling a form element, make sure we also submit it.
+			// See https://onthegosystems.myjetbrains.com/youtrack/issue/types-1784#focus=streamItem-102-308144-0-0
+			// for a lengthy explanation of why it is needed.
+			if ( isset( $element['#attributes']['data-submitanyway'] ) && $element['#attributes']['data-submitanyway'] ) {
+				$value['#attributes']['data-submitanyway'] = true;
 			}
 			$element['_render']['element'] .= $this->radio( $value );
 		}
@@ -1046,11 +1080,15 @@ class Enlimbo_Forms {
 			/**
 			 * selected
 			 */
+			// make sure "option value" and "stored option value" are both trimmed
+			$option_value = trim( $value['#value'] );
+			$stored_value = is_array( $element['#default_value'] ) ? array_map( 'trim', $element['#default_value'] ) : trim( $element['#default_value'] );
+
 			if ( array_key_exists( '#multiple', $element ) && $element['#multiple'] ) {
 				if ( is_array( $element['#default_value'] ) && in_array( $value['#value'], $element['#default_value'] ) ) {
 					$element['_render']['element'] .= ' selected="selected"';
 				}
-			} elseif ( $element['#default_value'] == $value['#value'] ) {
+			} elseif ( $stored_value == $option_value ) {
 				$element['_render']['element'] .= ' selected="selected"';
 			}
 			$element['_render']['element'] .= '>';
@@ -1225,7 +1263,7 @@ class Enlimbo_Forms {
 		$element = $this->_setRender( $element );
 		$output = '<input type="hidden" id="' . $element['#id'] . '" name="'
 			. $element['#name'] . '" value="';
-		$output .= isset( $element['#value'] ) ? $element['#value'] : 1;
+		$output .= array_key_exists( '#value', $element ) ? esc_attr( $element['#value'] ) : 1;
 		$output .= '"' . $element['_attributes_string'] . $this->_getDataWptId( $element ) . ' />';
 
 		return $output;

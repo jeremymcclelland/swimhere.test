@@ -6,14 +6,19 @@ class Toolset_User_Editors_Editor_Screen_Visual_Composer_Frontend
 	public function initialize() {
 		add_action( 'init', array( $this, 'map_all_vc_shortcodes' ) );
 
-		add_action( 'the_content', array( $this, 'render_custom_css' ) );
-		
+		add_filter( 'the_content', array( $this, 'render_custom_css' ) );
+
 		add_filter( 'vc_basic_grid_find_post_shortcode', array( $this, 'maybe_get_shortcode_from_assigned_ct_id' ), 10, 3 );
 
 		// this adds the [Fields and Views] to editor of WPBakery Page Builder (former Visual Composer) text element
 		if( array_key_exists( 'action', $_POST ) && $_POST['action'] == 'vc_edit_form' ) {
 			add_filter( 'wpv_filter_dialog_for_editors_requires_post', '__return_false' );
 		}
+
+		// This filters the content of the Visual Composer WP Text Widget module before the global post switched from the
+		// current post in the loop to the top current post. The switch happens because the module calls the "the_widget()"
+		// method which ultimately calls WP_Widget_Text::widget.
+		add_filter( 'vc_wp_text_widget_shortcode', 'wpv_do_shortcode' );
 	}
 
 	/**
@@ -32,8 +37,8 @@ class Toolset_User_Editors_Editor_Screen_Visual_Composer_Frontend
 	 * We need to check if current post has content_template and if so apply the custom css.
 	 * Hooked to the_content
 	 *
-	 * @param $content
-	 * @return mixed
+	 * @param string $content
+	 * @return string
 	 */
 	public function render_custom_css( $content ) {
 		if(
@@ -44,8 +49,10 @@ class Toolset_User_Editors_Editor_Screen_Visual_Composer_Frontend
 
 			if( $content_template && ! isset( $this->log_rendered_css[$content_template] ) ) {
 				$vcbase = new Vc_Base();
+				ob_start();
 				$vcbase->addPageCustomCss( $content_template );
 				$vcbase->addShortcodesCustomCss( $content_template );
+				$content .= ob_get_clean();
 				$this->log_rendered_css[$content_template] = true;
 			}
 		}

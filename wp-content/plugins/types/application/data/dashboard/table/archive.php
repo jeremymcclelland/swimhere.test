@@ -1,5 +1,23 @@
 <?php
 return array(
+	'no-archive-support-3rd-party' => array(
+		'type' => 'archive',
+
+		'priority' => 'important',
+
+		'conditions'=> array(
+			'Types_Helper_Condition_Archive_No_Support',
+			'Types_Helper_Condition_Type_Third_Party'
+		),
+
+		'description' => array(
+			array(
+				'type' => 'paragraph',
+				'content' => __( 'The archive is disabled for this post type.', 'wpcf' )
+			),
+		),
+	),
+
 	/* Post Type with has_archive = false */
 	'no-archive-support' => array(
 		'type' => 'archive',
@@ -245,14 +263,14 @@ return array(
 					'description' => array(
 						array(
 							'type' => 'paragraph',
-							'content' => __( 'Toolset plugins let you design archives with custom fields, without writing PHP.', 'wpcf' )
+							'content' => __( 'To design archives, you need to activate Toolset Views plugin.', 'wpcf' )
 						),
 						array(
 							'type'   => 'link',
 							'class'  => 'button-primary types-button',
 							'external' => true,
-							'label'  => __( 'Learn about creating archives with Toolset', 'wpcf' ),
-							'target' => Types_Helper_Url::get_url( 'creating-archives-with-toolset', 'popup' ),
+							'label'  => __('Download Toolset Views from your Toolset account', 'wpcf' ),
+							'target' => Types_Helper_Url::get_url( 'toolset-account-downloads', 'popup' ),
 						),
 					)
 				)
