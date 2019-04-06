@@ -40,7 +40,7 @@ if($project_gallery){
 
 	
 <?php if($project_gallery) { ?>	
-	<a class="btn btn-orange-general" id="photo-gallery"><i class="fa fa-image"></i> View Photos</a>	
+	<a class="btn btn-orange-general" id="photo-gallery"><i class="fa fa-image"></i> View Photo Gallery</a>	
 <?php } ?>	
 
 
