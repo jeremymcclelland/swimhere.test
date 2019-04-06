@@ -22,7 +22,7 @@ if(!$alignment){
 			</div>
 			
 			<div class="col-sm-offset-4 col-sm-4 text-center">
-				<?php get_sidebar('light-gallery'); ?>
+				
 			</div>
 			
 		</div>

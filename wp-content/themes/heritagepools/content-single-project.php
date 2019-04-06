@@ -40,6 +40,7 @@ if($discontinued){
 	<div class="entry-content">
 		
 		<h1 class="page-title">Project: <?php the_title(); ?></h1>
+		<?php get_sidebar('light-gallery'); ?>
 		<h2 class="location"><?php echo $city . ', ' . $state; ?></h2>
 		
 		<?php the_content(); ?>
