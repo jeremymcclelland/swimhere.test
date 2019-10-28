@@ -1485,7 +1485,7 @@ class flex_content_builder{
 				$rabbit_text = $rabbit['flexible_content_section_image_rabbit_text'];
 				$rabbit_link_type = $rabbit['flexible_content_section_image_rabbit_link_type'];
 				$rabbit_internal_link = $rabbit['flexible_content_section_image_rabbit_internal_link'];
-				$rabbit_external_link = $rabbit['flexible_content_section_image_rabbit_internal_link'];
+				$rabbit_external_link = $rabbit['flexible_content_section_image_rabbit_external_link'];
 				$rabbit_file_link = $rabbit['flexible_content_section_image_rabbit_file_link'];
 				$rabbit_button_text = $rabbit['flexible_content_section_image_rabbit_button_text'];
 				
